@@ -1,0 +1,49 @@
+# Minute Fit daily reminder.
+# Runs every evening and sends a notification at 6 pm Paris time
+# to everyone who turned reminders on and has not done a session today.
+# Each style (Classic, Garden, Night sky) gets its own text.
+# Needs the secret ONESIGNAL_API_KEY (Settings > Secrets and variables > Actions).
+name: Daily reminder
+on:
+  schedule:
+    - cron: "7 16,17 * * *"   # 16:07 and 17:07 UTC; only the one that is 6 pm in Paris sends
+  workflow_dispatch:          # "Run workflow" button: sends right away, for testing
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send reminders
+        env:
+          KEY: ${{ secrets.ONESIGNAL_API_KEY }}
+          MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          TODAY=$(TZ=Europe/Paris date +%F)
+          HOUR=$(TZ=Europe/Paris date +%H)
+          if [ "$MANUAL" != "true" ] && [ "$HOUR" != "18" ]; then echo "Not 6 pm in Paris, skipping."; exit 0; fi
+          send() {  # $1 = style, $2/$3/$4 = text in English / French / Spanish
+            jq -n --arg today "$TODAY" --arg style "$1" --arg en "$2" --arg fr "$3" --arg es "$4" '{
+              app_id: "2d4634c6-23ef-424a-b12c-57077d64cb93",
+              target_channel: "push",
+              filters: [
+                {field: "tag", key: "done", relation: "!=", value: $today},
+                {field: "tag", key: "style", relation: "=", value: $style}
+              ],
+              headings: {en: "Minute Fit", fr: "Minute Fit", es: "Minute Fit"},
+              contents: {en: $en, fr: $fr, es: $es}
+            }' > body.json
+            curl --fail-with-body -sS -X POST "https://api.onesignal.com/notifications?c=push" \
+              -H "Authorization: Key $KEY" -H "Content-Type: application/json" -d @body.json
+            echo
+          }
+          send original \
+            "A few minutes is all it takes. Your session is waiting!" \
+            "Quelques minutes suffisent. Votre séance vous attend !" \
+            "Bastan unos minutos. ¡Tu sesión te espera!"
+          send garden \
+            "Your plant is waiting for you. A few minutes are enough to help it grow!" \
+            "Votre plante vous attend. Quelques minutes suffisent pour la faire grandir !" \
+            "Tu planta te espera. ¡Bastan unos minutos para hacerla crecer!"
+          send night \
+            "Tonight's star is still waiting to shine. A few minutes are enough to light it!" \
+            "L'étoile de ce soir attend encore de briller. Quelques minutes suffisent pour l'allumer !" \
+            "La estrella de esta noche aún espera brillar. ¡Bastan unos minutos para encenderla!"
