@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minute Fit</title>
+<meta name="theme-color" content="#F2F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1E24" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Minute Fit">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F5F3;--card:#FFFFFF;--ink:#14303A;--mute:#56707A;--line:#D5DFDB;--accent:#F0B429;--on-accent:#14303A;--mob:#2A8C8C;--car:#D94F6B;--str:#5B5BD6;--danger:#C42B36;--on-danger:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1E24;--card:#183039;--ink:#EAF2EF;--mute:#9DB5BC;--line:#2A4650;--danger:#FF7A80;--on-danger:#14303A}}
+:root[data-theme="dark"]{--bg:#0F1E24;--card:#183039;--ink:#EAF2EF;--mute:#9DB5BC;--line:#2A4650;--danger:#FF7A80;--on-danger:#14303A}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:calc(18px*var(--s,1))/1.45 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 18px 110px}
+h1{font-size:calc(30px*var(--s,1));line-height:1.15;margin:8px 0 4px}
+h2{font-size:calc(22px*var(--s,1));margin:26px 0 10px}
+p{margin:0 0 10px}.mute{color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.row{display:flex;gap:12px;align-items:center}.grow{flex:1}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:14px 18px;min-height:52px}
+.primary{background:var(--accent);color:var(--on-accent);font-weight:700;width:100%}
+.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.tag{display:inline-block;font-size:15px;font-weight:700;color:#fff;border-radius:8px;padding:2px 10px}
+.mobility{background:var(--mob)}.cardio{background:var(--car)}.strength{background:var(--str)}
+.week{display:flex;gap:8px;justify-content:space-between;margin:10px 0 4px}
+.dot{flex:1;text-align:center;font-size:15px;color:var(--mute)}
+.dot .l{margin-bottom:6px}
+.rg{position:relative;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:calc(14px*var(--s,1));color:var(--ink)}
+.rg svg{position:absolute;inset:0;width:100%;height:100%}
+.dot.today .rg{box-shadow:0 0 0 2px var(--accent)}
+.dot.today{color:var(--ink);font-weight:700}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin-top:8px}
+.legend span:before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.session{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);margin-bottom:12px;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{text-align:center}.stat b{display:block;font-size:32px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;background:none;color:var(--mute);font-size:16px;min-height:56px}
+nav button[aria-current="true"]{color:var(--ink);font-weight:700;box-shadow:inset 0 3px 0 var(--accent)}
+.video{aspect-ratio:16/9;width:100%;border-radius:16px;background:var(--line);display:grid;place-items:center;color:var(--mute);text-align:center;padding:12px;margin-bottom:12px;overflow:hidden}
+.video video,.video img{width:100%;height:100%;object-fit:cover;border-radius:16px;pointer-events:none;display:block}.video .flip{transform:scaleX(-1)}.video:has(video,img){padding:0}
+#player{position:fixed;inset:0;background:var(--bg);z-index:5;overflow:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 18px 24px}
+#player>div{max-width:560px;margin:0 auto}
+.timer{font-size:84px;font-weight:700;text-align:center;line-height:1;margin:14px 0}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin-bottom:14px}.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.note{font-size:calc(15px*var(--s,1));color:var(--mute)}
+[hidden]{display:none!important}
+.top{display:flex;align-items:center;justify-content:space-between}.top b{font-size:20px}
+.burger{background:var(--card);border:1px solid var(--line);color:var(--ink);width:52px;padding:0;display:grid;place-items:center}
+#menu{position:fixed;inset:0;z-index:10;background:rgba(0,0,0,.45);display:flex;justify-content:flex-end}
+#menu .sheet{background:var(--bg);width:min(340px,88%);height:100%;padding:calc(18px + env(safe-area-inset-top,0px)) 18px 24px;overflow:auto}
+.opts{display:flex;gap:8px;flex-wrap:wrap}.opts button{flex:1;padding:10px;min-height:48px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.opts button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}
+.session{transition:box-shadow .3s,border-color .3s}.session.hl{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent)}
+.primary:disabled{opacity:.4;cursor:default}
+.mgrp{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px}
+.mgrp h3{margin:0 0 10px;font-size:calc(17px*var(--s,1))}
+.opts button{display:flex;justify-content:center;align-items:center;gap:8px;border-radius:12px}
+.opts.col{flex-direction:column}.opts.col button{justify-content:space-between;text-align:left}
+.mgrp .opts button{background:var(--bg)}
+.mgrp .opts button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}
+@keyframes slide{from{transform:translateX(28px);opacity:0}}
+#menu .sheet{animation:slide .2s ease-out}
+@media (prefers-reduced-motion:reduce){#menu .sheet{animation:none}}
+.danger{width:100%;background:transparent;color:var(--danger);border:2px solid var(--danger);font-weight:700}
+.danger-fill{background:var(--danger);color:var(--on-danger);font-weight:700}
+.danger-zone{margin-top:48px}
+#dlg{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:18px}
+#dlg .box{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;max-width:400px;width:100%}
+#dlg .box h2{margin-top:0}#dlg .row button{flex:1}
+.ach summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;min-height:40px}
+.ach summary::-webkit-details-marker{display:none}
+.ach summary span:after{content:"▾";margin-left:10px;display:inline-block;transition:transform .2s}
+.ach[open] summary span:after{transform:rotate(180deg)}
+.astats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 8px}
+.ach h3{margin:14px 0 10px;font-size:calc(17px*var(--s,1))}
+.cgrid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cardbtn{background:none;padding:0;min-height:0;border-radius:12px;line-height:0}
+.cardbtn svg{width:100%;height:auto;display:block}
+#bub{position:absolute;width:220px;z-index:3;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px;font-size:calc(15px*var(--s,1));line-height:1.35;text-align:left}
+#bub:before{content:"";position:absolute;top:-6px;left:var(--ax,50%);width:12px;height:12px;background:inherit;transform:translateX(-50%) rotate(45deg)}
+.stat b small{font-size:16px}
+body{overflow-x:hidden}
+#app{position:relative}
+#nb{position:absolute;width:100%;padding:20px 18px 110px;box-sizing:border-box;pointer-events:none}
+.mon{border-top:1px solid var(--line);padding:4px 0}
+.mon summary:after{content:"▾";transition:transform .2s}.mon[open] summary:after{transform:rotate(180deg)}
+.mon summary{font-weight:700}
+.msum{font-size:calc(15px*var(--s,1));color:var(--mute);margin:0 0 8px}
+.wl{font-size:calc(13px*var(--s,1));color:var(--mute);margin:8px 0 0}
+.mon .week{margin:8px 0}.mon .week:first-of-type{margin:2px 0;color:var(--mute)}.mon .dot{position:relative}
+.mbs{position:absolute;top:-8px;right:-5px;display:flex;pointer-events:none;z-index:1}.mb{display:block;line-height:0}.mb+.mb{margin-left:-9px}.mb svg{width:13px;height:17px;display:block}.mon .dot{font-size:calc(14px*var(--s,1))}
+#sheet{position:fixed;inset:0;background:var(--bg);z-index:6;overflow:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 18px 24px}
+#sheet>div{max-width:560px;margin:0 auto}
+.exgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.exc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px 8px 12px;display:flex;flex-direction:column;gap:2px}
+.exc b{margin-top:6px;padding:0 4px;line-height:1.25}.exc .mute{padding:0 4px;font-size:calc(15px*var(--s,1))}
+.eximg{aspect-ratio:4/3;border-radius:12px;background:var(--bg);border:2px dashed var(--line);color:var(--mute);display:grid;place-items:center;overflow:hidden}
+.eximg img{width:100%;height:100%;object-fit:cover;display:block}
+.eximg:has(img){border:0}
+button.eximg{width:100%;padding:0;min-height:0;position:relative;font:inherit}
+.play{position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+#vid{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.7);display:grid;place-items:center;padding:18px;overflow:auto}
+.vbox{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;width:100%;max-width:560px}
+.ring{position:relative;width:min(240px,68vw);margin:20px auto 6px}
+.ring svg{display:block;width:100%;height:auto}
+.seg-track,.seg-fill{fill:none;stroke-width:16;stroke-linecap:round}
+.seg-track{stroke:var(--line)}
+.seg-fill{stroke-dasharray:100 100;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}
+.ringc{position:absolute;inset:0;display:grid;place-content:center;text-align:center;line-height:1.1;pointer-events:none}
+.ringc b{font-size:calc(46px*var(--s,1));display:block}.ringc span{font-size:calc(16px*var(--s,1));color:var(--mute)}
+.ringc b.pop{animation:pop .45s ease-out}
+@keyframes pop{40%{transform:scale(1.25)}}
+.rlegend{justify-content:center;margin:2px 0 6px}
+.fld{display:block;margin:16px 0 0}.fld span{display:block;font-weight:700;margin-bottom:6px}
+.fld input{font:inherit;width:100%;min-height:52px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.fld input:focus{outline:none;border-color:var(--accent)}
+#intro{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:24px 18px;overflow:auto;background:rgba(15,30,36,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fade .3s ease-out}
+.ibox{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px 24px 24px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:rise .35s ease-out}
+.ibox .ilogo{display:block;margin:0 auto 14px}
+.ibox h2{margin:0 0 12px;font-size:calc(26px*var(--s,1))}.ibox p{margin:0 0 24px;font-size:calc(19px*var(--s,1));line-height:1.55}
+@keyframes fade{from{opacity:0}}@keyframes rise{from{transform:translateY(16px) scale(.97);opacity:0}}
+@media (prefers-reduced-motion:reduce){#intro,.ibox{animation:none}}
+#reward{position:fixed;inset:0;z-index:40;background:var(--rw,#14303A);color:#EAF2EF;overflow:auto;text-align:center;padding:calc(36px + env(safe-area-inset-top,0px)) 24px 28px}
+.rw{max-width:420px;margin:0 auto}.rw h1{font-size:calc(34px*var(--s,1));margin:10px 0 0}
+.stage{position:relative;width:230px;height:310px;margin:36px auto 0}
+.stage:before{content:"";position:absolute;inset:-90px;border-radius:50%;background:repeating-conic-gradient(rgba(240,180,41,.16) 0 9deg,transparent 9deg 18deg);-webkit-mask:radial-gradient(closest-side,#000 40%,transparent);mask:radial-gradient(closest-side,#000 40%,transparent);animation:spin 18s linear infinite}
+@keyframes spin{to{transform:rotate(1turn)}}
+.flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:rotate(-3deg);animation:flipin 1.1s cubic-bezier(.2,.8,.2,1) .3s both}
+@keyframes flipin{0%{transform:rotateY(180deg) scale(.55)}55%{transform:rotateY(-14deg) scale(1.06)}100%{transform:rotateY(0) scale(1) rotate(-3deg)}}
+.flip.still{animation:none}
+.face{position:absolute;inset:0;border-radius:22px;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.back{transform:rotateY(180deg);background:var(--rw2,#1E4150);border:2px solid var(--rw3,#2E5A6B);display:grid;place-items:center;font-size:72px;font-weight:700;color:#F0B429}
+.front{background:linear-gradient(160deg,rgba(255,255,255,.32),rgba(255,255,255,0) 50%,rgba(0,0,0,.14)),var(--c);color:#fff;padding:16px 18px;text-align:left;display:flex;flex-direction:column}
+.front .cn{font-size:14px;font-weight:700;opacity:.85}.front svg{margin:22px auto 0;display:block}
+.front h2{margin:auto 0 0;font-size:calc(24px*var(--s,1));line-height:1.15}.front p{margin:6px 0 0;font-size:calc(15px*var(--s,1));line-height:1.3;opacity:.95}
+.rw .coll{margin:34px 0 0;color:#9DB5BC}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px 0 0;flex-wrap:wrap}.dots i{width:18px;height:24px;border-radius:4px;background:var(--rw2,#2A4650)}.dots i.on{background:#F0B429}
+.rw .primary{margin-top:30px}
+@media (prefers-reduced-motion:reduce){.stage:before{animation:none}}
+/* ---- Styles: Garden and Night sky colours ---- */
+:root[data-style="garden"]:not([data-x]){--bg:#E6EFE4;--card:#F7FBF5;--ink:#1D3A2C;--mute:#55705F;--line:#C9DBC6;--accent:#2F6B4F;--on-accent:#FFFFFF;--stem:#3E7A55;--leaf1:#5E9C6E;--leaf2:#78B487;--pot:#2E5843;--sky1:#F4F9F2;--sky2:#D6E7D2;--rw:#1D3A2C;--rw2:#2A4C3A;--rw3:#3B6650;--danger:#C42B36;--on-danger:#fff;color-scheme:light}
+:root[data-style="night"]:not([data-x]){--bg:#0E1530;--card:#161F45;--ink:#E8ECFA;--mute:#9AA6D6;--line:#27326A;--accent:#F5C85A;--on-accent:#0E1530;--danger:#FF8A92;--on-danger:#0E1530;--rw:#0B1128;--rw2:#1B2656;--rw3:#2E3B78;color-scheme:dark}
+:root[data-style="garden"] h1,.pcap{font-family:Lora,Georgia,serif;font-weight:600}
+.scene{position:relative;margin:16px 0 4px;border-radius:28px;background:linear-gradient(var(--sky1),var(--sky2));overflow:hidden;padding:84px 10px 0}
+.scene>svg{display:block;width:100%;max-width:330px;margin:0 auto;height:auto}
+.scene.sky{background:radial-gradient(ellipse at 50% 120%,#2A3A7A,#121B42 60%,#0B1128);padding:84px 6px 10px}
+.st{fill:none;stroke:var(--stem);stroke-linecap:round}
+.fl .bloom{transform:scale(0);transition:transform .8s cubic-bezier(.3,1.7,.5,1)}
+.fl .bud{transition:opacity .25s}.fl.open .bloom{transform:scale(1)}.fl.open .bud{opacity:0}
+.seg-fill.sm{stroke-width:4}
+.pchip{position:absolute;top:14px;right:14px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:calc(15px*var(--s,1));color:var(--mute)}
+.pchip b{color:var(--ink);display:inline-block}
+.pcap{position:absolute;top:12px;left:18px;right:110px;font-size:calc(19px*var(--s,1));line-height:1.2;margin:0;color:var(--ink)}
+.sky .pcap{font-family:inherit;font-weight:700;color:#E8ECFA}.sky .pchip{background:#1B2656;border-color:#2E3B78;color:#9AA6D6}.sky .pchip b{color:#fff}
+.pcap small{display:block;font-family:"Atkinson Hyperlegible",system-ui,sans-serif;font-weight:400;font-size:calc(14px*var(--s,1));color:var(--mute);margin-top:3px;line-height:1.3}
+.sky .pcap small{color:#9AA6D6}
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.wk{display:flex;flex-direction:column;font-size:calc(14px*var(--s,1));line-height:1.25}
+.wkp{border-radius:14px;background:linear-gradient(var(--sky1),var(--sky2));padding:6px 2px 0;margin-bottom:6px}.wkp.sky{background:#121B42;padding:4px}
+.wkp svg{display:block;width:100%;height:auto}
+@media (prefers-reduced-motion:reduce){.fl .bloom{transition:none}}
+.tipsh{margin:16px 0 6px;font-size:calc(17px*var(--s,1))}
+.tips{margin:0;padding-left:22px}.tips li{margin:4px 0}.tips ul{margin:4px 0 0;padding-left:20px;list-style:disc}.tips>li{list-style:none;position:relative}
+.tips>li:before{content:"";position:absolute;left:-17px;top:.5em;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.sinfo{position:absolute;top:8px;right:8px;width:44px;height:44px;min-height:0;padding:0;border-radius:50%;background:transparent;border:0;color:#9AA6D6;opacity:.7;display:grid;place-items:center;z-index:1}.sinfo:active{opacity:1}
+.scene .pchip{top:auto;bottom:12px}.scene:not(.sky){padding-bottom:50px}.scene .pcap{right:64px}.ginfo{color:var(--mute)}
+.story .stplant{background:linear-gradient(var(--sky1),var(--sky2));border-radius:18px;margin:-8px -8px 16px;padding:10px 10px 0}.story .stplant svg{display:block;width:100%;max-height:260px;height:auto}
+.story .stsky{background:radial-gradient(ellipse at 50% 120%,#2A3A7A,#121B42 60%,#0B1128);border-radius:18px;margin:-8px -8px 16px;padding:6px}
+.story .stsky svg{display:block;width:100%;height:auto}.story p{text-align:left;font-size:calc(17px*var(--s,1))}
+.timer.pulse{animation:tpulse .45s ease-out}@keyframes tpulse{30%{transform:scale(1.12);color:var(--accent)}}
+@media (prefers-reduced-motion:reduce){.timer.pulse{animation:none}}
+/* Race-start countdown before a session: 3, 2, 1, then a green GO */
+.cd{min-height:calc(100vh - 140px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cd .n{font-size:min(56vw,320px);font-weight:700;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;animation:cdpop .9s ease-out both}
+.cd .n.go{font-size:min(15vw,96px);white-space:nowrap;color:#fff;background:#22B35E;border-radius:999px;padding:.12em .5em;box-shadow:0 0 0 14px rgba(34,179,94,.25),0 0 60px rgba(34,179,94,.6);animation:cdgo .6s ease-out both}
+.cd .cdnext{margin:0 0 30px;font-size:calc(22px*var(--s,1));line-height:1.3}.cd .cdnext span{display:block;font-size:.7em;margin-bottom:4px}.cd .lights{display:flex;gap:14px;margin-bottom:28px}.cd .lights i{width:26px;height:26px;border-radius:50%;background:var(--line);transition:background .15s,box-shadow .15s}
+.cd .lights i.on{background:#E5484D;box-shadow:0 0 14px rgba(229,72,77,.7)}.cd .lights.g i{background:#22B35E;box-shadow:0 0 14px rgba(34,179,94,.8)}
+@keyframes cdpop{0%{transform:scale(1.6);opacity:0}25%{transform:scale(1);opacity:1}80%{opacity:1}100%{transform:scale(.85);opacity:.2}}
+@keyframes cdgo{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.cd .n,.cd .n.go{animation:none}}
+.donecard{position:relative;padding-right:56px}
+.shareic{position:absolute;top:6px;right:6px;width:44px;height:44px;min-height:0;padding:0;border:0;background:transparent;color:var(--ink);display:grid;place-items:center}
+.shareic svg{width:22px;height:22px}
+.rwshare{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;color:#EAF2EF;z-index:1}
+.recap h2{margin-bottom:14px}.rstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.rstats .stat b{font-size:calc(30px*var(--s,1))}.rstats .stat span{font-size:calc(14px*var(--s,1))}
+.recap .week{margin:0 0 14px}.recap p.rlast{text-align:center;margin:0 0 6px}
+.rnext{border-top:1px solid var(--line);padding-top:14px;margin-top:6px}.rnext p.rnt{text-align:center;margin:0 0 10px}
+.rpic{position:relative;border-radius:18px;background:linear-gradient(var(--sky1,#eee),var(--sky2,#ddd));padding:8px 8px 0;margin:0 0 10px}.rpic.sky{background:radial-gradient(ellipse at 50% 120%,#2A3A7A,#121B42 60%,#0B1128);padding:6px}
+.rpic svg{display:block;width:100%;height:auto;max-height:260px}
+.rpic{margin-bottom:18px}
+#confetti{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:100}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<div id="player" hidden></div>
+<div id="sheet" hidden></div>
+<div id="menu" hidden></div>
+<div id="dlg" hidden role="dialog" aria-modal="true"></div>
+<div id="vid" hidden role="dialog" aria-modal="true"></div>
+<div id="intro" hidden role="dialog" aria-modal="true"></div>
+<div id="reward" hidden role="dialog" aria-modal="true"></div>
+<nav id="tabs"></nav>
+<script>
+/* ============ EDIT YOUR CONTENT HERE ============
+   Texts are lists in this order: [English, Français, Español].
+   video: your own video link (e.g. "hip-circles.mp4"). Leave "" for a placeholder.
+   img: the framed picture of the exercise shown in the exercise list (e.g. "images/cat-cow.jpg"). Leave "" for an empty frame. */
+/* Mobility - Beginner (15 min). secs = work time, rest = rest after it, part = group heading, restMsg = message shown during that rest.
+   gate:true = a stop where the person must press Next (no timer). */
+/* Demo videos (looping, no sound), by English exercise name. Same video for every level and both sides. */
+const VIDEOS = {
+  "Cat-cow":"cat-cow.mp4",
+  "Neck warm-up":"neck-warmup.mp4",
+  "Outward leg rotations":"outward-leg-rotations.mp4",
+  "Torso rotations":"torso-rotations.mp4",
+  "Waist warm-up":"waist-warmup.mp4",
+  "Windshield wipers":"windshield-wipers.mp4",
+  "Hip switch":"hip-switch.mp4",
+  "Neck stretches":"neck-stretches.mp4",
+  "Thread the needle":"thread-the-needle.mp4",
+  "Superman plank":"superman-plank.mp4",
+  "Deep squat with rotation":"deep-squat-rotation.mp4",
+  "Dynamic bridge stretch":"bridge-stretch.mp4",
+  "Inchworm walk-out":"inchworm.mp4",
+  "World's greatest stretch":"worlds-greatest-stretch.mp4",
+  "Cossack squat":["cossack-squat-1.mp4","cossack-squat-2.mp4"],
+  "Arm warm-up":"arm-warmup.mp4",
+  "Knee warm-up":"knee-warmup.mp4",
+  "Crossed elbow-knee touch":"elbow-knee-touch.mp4",
+  "Butt kicks":"butt-kicks.mp4",
+  "High knees":"high-knees.mp4",
+  "Jumping jacks":"jumping-jacks.mp4",
+  "Plain burpees (no jump, no push-up)":"plain-burpees.mp4",
+  "Dynamic burpees (no push-up)":"dynamic-burpees.mp4",
+  "Mountain climbers":"mountain-climbers.mp4",
+  "Knee push-ups":"knee-pushups.mp4",
+  "Bench dips":"bench-dips.mp4",
+  "Lying leg kicks":"lying-leg-kicks.mp4",
+  "Squats":"squats.mp4",
+  "Lunges":"lunges.mp4",
+  "Push-ups":"push-ups.mp4",
+  "Kneeling triceps extensions":"kneeling-triceps-extensions.mp4",
+  "Triceps extensions":"triceps-extensions.mp4",
+  "V-ups":"v-ups.mp4",
+  "Jump squats":"jump-squats.mp4",
+  "Jump lunges":"jump-lunges.mp4",
+  "Superman jacks":"superman-jacks.mp4",
+  /* held positions: a still picture (.jpg) instead of a video */
+  "Plank":"plank.jpg",
+  "Side plank":"side-plank.jpg",
+  "Standing toe touch":"toe-touch.jpg",
+  "Seated wide-leg reach":"seated-wide-leg-reach.jpg",
+  "Deep lunge stretch":"deep-lunge-stretch.jpg",
+  "Prayer":"prayer.jpg",
+  "Deep squat stretch":"deep-squat.jpg",
+  "Cobra pose":"cobra.jpg",
+  "Butterfly":"butterfly.jpg",
+  "Hamstring stretch":"hamstring-stretch.jpg"
+};
+/* The video or picture of an exercise. On the 2nd side it is shown mirrored. */
+const media = e => !e.video ? t("demo")
+  : `<${/\.jpe?g$/.test(e.video)?'img alt=""':'video autoplay muted loop playsinline disablepictureinpicture preload="auto"'} src="${e.video}"${e.flip?' class="flip"':""}>${/\.jpe?g$/.test(e.video)?"":"</video>"}`;
+/* pick the video: a list [1st side, 2nd side] gives one video per side; a single video is mirrored on the 2nd side */
+const pickVideo = en => { const v = VIDEOS[en.replace(/ \((?:1st|2nd) side\)$/,"")]||"", two = / \(2nd side\)$/.test(en);
+  return Array.isArray(v) ? {video:v[two?1:0], flip:false} : {video:v, flip:two}; };
+const ex = ty => (en,fr,es,secs,rest,part,extra) => Object.assign({type:ty,secs,rest,part,img:"",name:[en,fr,es],cue:["","",""]},pickVideo(en),extra||{});
+const mx = ex("mobility"), cx = ex("cardio");
+/* Mobility warm-up, same for all levels: 4 x (60 s + 15 s rest) */
+const MOB_WARM = () => [
+  mx("Neck warm-up","Échauffement du cou","Calentamiento de cuello",60,15,"warmup"),
+  mx("Torso rotations","Rotations du buste","Rotaciones de torso",60,15,"warmup"),
+  mx("Waist warm-up","Échauffement du bassin","Calentamiento de cintura",60,15,"warmup"),
+  mx("Outward leg rotations","Rotations de jambe vers l'extérieur","Rotaciones de pierna hacia afuera",60,15,"warmup")
+];
+const MOB_BEG = [
+  ...MOB_WARM(),
+  {gate:true,part:"main",title:["Warmed up?","Bien échauffé ?","¿Calentado?"],sub:["Press Next when you're ready to start stretching.","Appuyez sur Suivant quand vous êtes prêt à commencer les étirements.","Pulsa Siguiente cuando estés listo para empezar los estiramientos."]},
+  mx("Cat-cow","Chat-vache","Gato-vaca",45,15,"main"),
+  mx("Windshield wipers (1st side)","Essuie-glaces (1er côté)","Limpiaparabrisas (1.er lado)",45,15,"main"),
+  mx("Windshield wipers (2nd side)","Essuie-glaces (2e côté)","Limpiaparabrisas (2.º lado)",45,15,"main"),
+  mx("Deep squat stretch","Étirement en squat profond","Estiramiento en sentadilla profunda",45,15,"main"),
+  mx("Hip switch","Hip switch (bascule des hanches)","Hip switch (cambio de cadera)",45,15,"main"),
+  mx("Prayer","Posture de la prière","Postura de oración",45,15,"main"),
+  mx("Cobra pose","Posture du cobra","Postura de la cobra",45,15,"main"),
+  mx("Butterfly","Papillon","Mariposa",45,15,"main"),
+  mx("Hamstring stretch","Étirement ischio-jambiers","Estiramiento de isquiotibiales",45,15,"main",{restMsg:["And finally… stand up","Et pour finir… levez-vous","Y para terminar… ponte de pie"]}),
+  mx("Neck stretches","Étirements du cou","Estiramientos de cuello",45,15,"main")
+];
+/* Mobility - Intermediate (15 min): 4 x (60 s + 15 s rest) + gate + 10 x (50 s + 10 s rest) */
+const MOB_INT = [
+  ...MOB_WARM(),
+  MOB_BEG.find(e=>e.gate),
+  mx("Inchworm walk-out","Marche de la chenille","Caminata del gusano",50,10,"main"),
+  mx("Thread the needle (1st side)","Enfiler l'aiguille (1er côté)","Enhebrar la aguja (1.er lado)",50,10,"main"),
+  mx("Thread the needle (2nd side)","Enfiler l'aiguille (2e côté)","Enhebrar la aguja (2.º lado)",50,10,"main"),
+  mx("Superman plank","Planche Superman","Plancha Superman",50,10,"main"),
+  mx("Deep squat with rotation","Squat profond avec rotation","Sentadilla profunda con rotación",50,10,"main"),
+  mx("Deep lunge stretch (1st side)","Étirement en fente profonde (1er côté)","Estiramiento en zancada profunda (1.er lado)",50,10,"main"),
+  mx("Deep lunge stretch (2nd side)","Étirement en fente profonde (2e côté)","Estiramiento en zancada profunda (2.º lado)",50,10,"main"),
+  mx("Dynamic bridge stretch","Étirement dynamique en pont","Estiramiento dinámico en puente",50,10,"main"),
+  mx("Seated wide-leg reach","Flexion assise jambes écartées","Alcance sentado con piernas abiertas",50,10,"main",{restMsg:["And finally… stand up","Et pour finir… levez-vous","Y para terminar… ponte de pie"]}),
+  mx("Neck stretches","Étirements du cou","Estiramientos de cuello",50,10,"main")
+];
+/* ---- Cardio ----
+   Same warm-up for all levels: 4 x (60 s + 15 s rest), then a stop.
+   Main part = the same round done twice, with 1 min rest between rounds. */
+const CAR_WARM = [
+  cx("Neck warm-up","Échauffement du cou","Calentamiento de cuello",60,15,"warmup"),
+  cx("Arm warm-up","Échauffement des bras","Calentamiento de brazos",60,15,"warmup"),
+  cx("Waist warm-up","Échauffement du bassin","Calentamiento de cintura",60,15,"warmup"),
+  cx("Knee warm-up","Échauffement des genoux","Calentamiento de rodillas",60,15,"warmup"),
+  {gate:true,part:"main",title:["Warmed up?","Bien échauffé ?","¿Calentado?"],sub:["Press Next when you're ready to get moving.","Appuyez sur Suivant quand vous êtes prêt à vous lancer.","Pulsa Siguiente cuando estés listo para empezar."]}
+];
+const ROUND2 = {restMsg:["Halfway there! Round 2 is next","À mi-parcours ! Place au 2e tour","¡A mitad de camino! Ahora, la 2.ª vuelta"]};
+/* round(list, maker, between): list = [[en,fr,es,secs,rest],...]. Makes 2 rounds: "between" seconds of rest after round 1 (default 60), nothing after round 2. */
+const round = (list, mk = cx, between = 60) => [1,2].flatMap(r => list.map((x,k) => {
+  const last = k===list.length-1;
+  return mk(x[0],x[1],x[2],x[3], last ? (r===1?between:0) : x[4], "main", last&&r===1 ? ROUND2 : null);
+}));
+/* Cardio - Beginner (20 min): warm-up + 2 x [5 x (1 min + 30 s rest)] */
+const CAR_BEG = CAR_WARM.concat(round([
+  ["Crossed elbow-knee touch","Coude-genou croisé","Codo a rodilla cruzado",60,30],
+  ["Butt kicks","Talons-fesses","Talones al glúteo",60,30],
+  ["High knees","Montées de genoux","Elevación de rodillas",60,30],
+  ["Jumping jacks","Jumping jacks","Saltos de tijera",60,30],
+  ["Plain burpees (no jump, no push-up)","Burpees simples (sans saut ni pompe)","Burpees simples (sin salto ni flexión)",60,30]
+]));
+/* Cardio - Intermediate (20 min): warm-up + 2 x [5 x (1 min 10 s + 20 s rest)] */
+const CAR_INT = CAR_WARM.concat(round([
+  ["High knees","Montées de genoux","Elevación de rodillas",70,20],
+  ["Butt kicks","Talons-fesses","Talones al glúteo",70,20],
+  ["Jumping jacks","Jumping jacks","Saltos de tijera",70,20],
+  ["Mountain climbers","Mountain climbers","Escaladores",70,20],
+  ["Dynamic burpees (no push-up)","Burpees dynamiques (sans pompe)","Burpees dinámicos (sin flexión)",70,20]
+]));
+/* Cardio - Expert (25 min): warm-up + 2 x [5 x (1 min 15 s + 15 s rest) + plank 1 min + side plank 30 s each side] */
+const CAR_EXP = CAR_WARM.concat(round([
+  ["High knees","Montées de genoux","Elevación de rodillas",75,15],
+  ["Butt kicks","Talons-fesses","Talones al glúteo",75,15],
+  ["Jumping jacks","Jumping jacks","Saltos de tijera",75,15],
+  ["Mountain climbers","Mountain climbers","Escaladores",75,15],
+  ["Dynamic burpees (no push-up)","Burpees dynamiques (sans pompe)","Burpees dinámicos (sin flexión)",75,15],
+  ["Plank","Planche (gainage)","Plancha",60,0],
+  ["Side plank (1st side)","Planche latérale (1er côté)","Plancha lateral (1.er lado)",30,0],
+  ["Side plank (2nd side)","Planche latérale (2e côté)","Plancha lateral (2.º lado)",30,0]
+]));
+/* ---- Strength ----
+   Same warm-up for all levels: 4 x (60 s + 15 s rest), then a stop.
+   Main part = the same round done twice, with a rest between rounds. */
+const sx = ex("strength");
+const STR_WARM = [
+  sx("Neck warm-up","Échauffement du cou","Calentamiento de cuello",60,15,"warmup"),
+  sx("Arm warm-up","Échauffement des bras","Calentamiento de brazos",60,15,"warmup"),
+  sx("Waist warm-up","Échauffement du bassin","Calentamiento de cintura",60,15,"warmup"),
+  sx("Knee warm-up","Échauffement des genoux","Calentamiento de rodillas",60,15,"warmup"),
+  {gate:true,part:"main",title:["Warmed up?","Bien échauffé ?","¿Calentado?"],sub:["Press Next when you're ready to start.","Appuyez sur Suivant quand vous êtes prêt à commencer.","Pulsa Siguiente cuando estés listo para empezar."]}
+];
+/* Strength - Beginner (20 min): warm-up + 2 x [5 x (1 min + 30 s rest)], 1 min rest between rounds */
+const STR_BEG = STR_WARM.concat(round([
+  ["Knee push-ups","Pompes sur les genoux","Flexiones con rodillas apoyadas",60,30],
+  ["Bench dips","Dips sur banc","Fondos en banco",60,30],
+  ["Lying leg kicks","Battements de jambes au sol","Patadas de piernas en el suelo",60,30],
+  ["Squats","Squats","Sentadillas",60,30],
+  ["Lunges","Fentes","Zancadas",60,30]
+], sx));
+/* Strength - Intermediate (20 min): warm-up + 2 x [5 exercises + 20 s rests], 1 min rest between rounds */
+const STR_INT = STR_WARM.concat(round([
+  ["Push-ups","Pompes","Flexiones",70,20],
+  ["Kneeling triceps extensions","Extensions triceps sur les genoux","Extensiones de tríceps de rodillas",70,20],
+  ["Superman jacks","Superman jacks","Superman jacks",60,20],
+  ["Squats","Squats","Sentadillas",70,20],
+  ["Lunges","Fentes","Zancadas",70,20]
+], sx));
+/* Strength - Expert (25 min): warm-up + 2 x [5 x (1 min 15 s + 15 s rest) + plank 1 min + side plank 30 s each side] */
+const STR_EXP = STR_WARM.concat(round([
+  ["Push-ups","Pompes","Flexiones",75,15],
+  ["Triceps extensions","Extensions triceps","Extensiones de tríceps",75,15],
+  ["V-ups","Portefeuille","Abdominales en V",75,15],
+  ["Jump squats","Squats sautés","Sentadillas con salto",75,15],
+  ["Jump lunges","Fentes sautées","Zancadas con salto",75,15],
+  ["Plank","Planche (gainage)","Plancha",60,0],
+  ["Side plank (1st side)","Planche latérale (1er côté)","Plancha lateral (1.er lado)",30,0],
+  ["Side plank (2nd side)","Planche latérale (2e côté)","Plancha lateral (2.º lado)",30,0]
+], sx));
+/* Mobility - Expert (20 min): warm-up + gate + 11 x (1 min + 15 s rest) + seated wide-leg reach 45 s each side */
+const MOB_EXP = [
+  ...MOB_WARM(),
+  MOB_BEG.find(e=>e.gate),
+  mx("Standing toe touch","Touché d'orteil debout","Tocar las puntas de los pies de pie",60,15,"main"),
+  mx("Inchworm walk-out","Marche de la chenille","Caminata del gusano",60,15,"main"),
+  mx("Thread the needle (1st side)","Enfiler l'aiguille (1er côté)","Enhebrar la aguja (1.er lado)",60,15,"main"),
+  mx("Thread the needle (2nd side)","Enfiler l'aiguille (2e côté)","Enhebrar la aguja (2.º lado)",60,15,"main"),
+  mx("Superman plank","Planche Superman","Plancha Superman",60,15,"main"),
+  mx("World's greatest stretch (1st side)","World's greatest stretch (1er côté)","World's greatest stretch (1.er lado)",60,15,"main"),
+  mx("World's greatest stretch (2nd side)","World's greatest stretch (2e côté)","World's greatest stretch (2.º lado)",60,15,"main"),
+  mx("Deep squat with rotation","Squat profond avec rotation","Sentadilla profunda con rotación",60,15,"main"),
+  mx("Cossack squat (1st side)","Squat cosaque (1er côté)","Sentadilla cosaca (1.er lado)",60,15,"main"),
+  mx("Cossack squat (2nd side)","Squat cosaque (2e côté)","Sentadilla cosaca (2.º lado)",60,15,"main"),
+  mx("Butterfly","Papillon","Mariposa",60,15,"main"),
+  mx("Seated wide-leg reach (1st side)","Flexion assise jambes écartées (1er côté)","Alcance sentado con piernas abiertas (1.er lado)",45,0,"main"),
+  mx("Seated wide-leg reach (2nd side)","Flexion assise jambes écartées (2e côté)","Alcance sentado con piernas abiertas (2.º lado)",45,0,"main")
+];
+/* ---- Tips shown under the video in "Having a hard time with an exercise?".
+   Key = the exercise's English name, without "(1st side)/(2nd side)" (same tips wherever the exercise appears).
+   Each tip is [EN, FR, ES]; a tip can also have sub-points: {t:[EN,FR,ES], sub:[[EN,FR,ES], ...]} ---- */
+const TIPS = {
+  "Neck warm-up": [["Maximum range of motion","Amplitude maximale","Máxima amplitud de movimiento"]],
+  "Arm warm-up": [["Keep your back straight","Gardez le dos droit","Mantén la espalda recta"],
+                  ["Don't swing your body","Ne balancez pas votre corps","No balancees el cuerpo"]],
+  "Waist warm-up": [["Maximum range of motion","Amplitude maximale","Máxima amplitud de movimiento"]],
+  "Torso rotations": [["Keep your waist still: only your upper body moves","Bloquez la taille : seul le haut du corps bouge","Fija la cintura: solo se mueve la parte superior del cuerpo"]],
+  "Outward leg rotations": [{t:["The three 90° rule:","La règle des trois 90° :","La regla de los tres 90°:"], sub:[
+      ["Your thigh at 90° to your torso","La cuisse à 90° du buste","El muslo a 90° del torso"],
+      ["Your shin at 90° to your thigh","Le tibia à 90° de la cuisse","La espinilla a 90° del muslo"],
+      ["Make a 90° turn","Faites une rotation de 90°","Haz un giro de 90°"]]}],
+  "Knee warm-up": [["Feet together, hands resting on your knees","Pieds joints, mains posées sur les genoux","Pies juntos, manos apoyadas en las rodillas"],
+                   ["Make slow circles in both directions","Faites des cercles lents dans les deux sens","Haz círculos lentos en ambos sentidos"],
+                   ["Keep your heels on the floor","Gardez les talons au sol","Mantén los talones en el suelo"]],
+  /* Mobility - Beginner */
+  "Cat-cow": [["Engage your pelvis to fully curve your back","Engagez le bassin pour bien courber votre dos","Activa la pelvis para curvar bien la espalda"],
+              ["Hold 2 s at the top and at the bottom","Restez 2 s en haut et en bas","Mantén 2 s arriba y abajo"]],
+  "Windshield wipers": [["Hand on the floor opposite your front foot","Main au sol opposée au pied avant","Mano en el suelo del lado opuesto al pie adelantado"],
+              ["Straight line from the hand on the floor, through your shoulders, to the raised hand","Ligne droite entre la main au sol, les épaules et la main en haut","Línea recta entre la mano en el suelo, los hombros y la mano de arriba"]],
+  "Deep squat stretch": [["Heels on the floor","Talons au sol","Talones en el suelo"],["Elbows between your knees","Coudes entre les genoux","Codos entre las rodillas"],["Straight back","Dos droit","Espalda recta"]],
+  "Hip switch": [["Touch the floor with both knees on every repetition","Touchez le sol avec les deux genoux à chaque répétition","Toca el suelo con ambas rodillas en cada repetición"]],
+  "Prayer": [["Sit your glutes on your heels","Fessiers sur les talons","Glúteos sobre los talones"],["Reach far forward","Allez chercher loin devant","Estírate lejos hacia delante"]],
+  "Cobra pose": [["Arms straight","Bras tendus","Brazos estirados"],["Look up to the sky","Regard vers le ciel","Mirada hacia el cielo"],["Engage your pelvis to curve your back","Engagez le bassin pour courber le dos","Activa la pelvis para curvar la espalda"]],
+  "Butterfly": [["Pull your feet toward you","Tirez vos pieds vers vous","Acerca los pies hacia ti"],["Keep your back nice and straight","Gardez le dos bien droit","Mantén la espalda bien recta"]],
+  "Hamstring stretch": [["Legs straight","Jambes tendues","Piernas estiradas"]],
+  "Neck stretches": [["Stand up straight","Tenez-vous droit","Mantén una postura erguida"],["Stay aligned during the stretch","Restez bien dans l'axe pendant l'étirement","Mantén el cuerpo alineado durante el estiramiento"]],
+  /* Mobility - Intermediate and Expert */
+  "Inchworm walk-out": [["Keep your legs straight and go down as far as you can","Gardez les jambes tendues et descendez aussi loin que possible","Mantén las piernas estiradas y baja todo lo que puedas"],
+                        ["Walk your hands out to a plank, hips level","Avancez les mains jusqu'à la planche, bassin stable","Avanza las manos hasta la plancha, con la cadera estable"],
+                        ["Walk your hands back and roll up slowly","Revenez avec les mains et déroulez lentement le dos","Vuelve con las manos y sube despacio, vértebra a vértebra"]],
+  "Thread the needle": [["On all fours: hands under shoulders, knees under hips","À quatre pattes : mains sous les épaules, genoux sous les hanches","A cuatro patas: manos bajo los hombros, rodillas bajo la cadera"],
+                        ["Slide your arm under your body until your shoulder rests on the floor","Glissez le bras sous le corps jusqu'à poser l'épaule au sol","Desliza el brazo por debajo del cuerpo hasta apoyar el hombro en el suelo"],
+                        ["Follow your hand with your eyes as you open back up","Suivez votre main du regard en revenant","Sigue tu mano con la mirada al volver"]],
+  "Deep squat with rotation": [["Heels on the floor, chest up","Talons au sol, poitrine haute","Talones en el suelo, pecho arriba"],
+                        ["One hand on the floor, reach the other to the sky","Une main au sol, l'autre vers le ciel","Una mano en el suelo y la otra hacia el cielo"],
+                        ["Follow your top hand with your eyes","Suivez la main du haut du regard","Sigue con la mirada la mano de arriba"]],
+  "Cossack squat": [["Feet wide apart, toes slightly turned out","Pieds très écartés, pointes légèrement vers l'extérieur","Pies muy separados, puntas un poco hacia fuera"],
+                ["Sit down onto one leg; the other stays straight, toes pointing up","Descendez sur une jambe ; l'autre reste tendue, pointe du pied vers le haut","Baja sobre una pierna; la otra queda estirada, con la punta del pie hacia arriba"],
+                ["Heel of the bent leg on the floor, chest up","Talon de la jambe pliée au sol, poitrine haute","Talón de la pierna doblada en el suelo, pecho arriba"],
+                ["Go only as low as feels comfortable","Descendez seulement aussi bas que c'est confortable","Baja solo hasta donde te resulte cómodo"]],
+  "Dynamic bridge stretch": [["Feet flat on the floor, hip-width apart","Pieds à plat, écartés de la largeur du bassin","Pies apoyados, separados al ancho de la cadera"],
+                        ["Squeeze your glutes to lift your hips","Serrez les fessiers pour monter le bassin","Aprieta los glúteos para subir la cadera"],
+                        ["Lower slowly, one vertebra at a time","Redescendez lentement, vertèbre par vertèbre","Baja despacio, vértebra a vértebra"]],
+  "Seated wide-leg reach": [["Legs straight, toes pointing up","Jambes tendues, pointes de pied vers le haut","Piernas estiradas, puntas de los pies hacia arriba"],
+                        ["Keep your back straight as you lean forward","Gardez le dos droit en vous penchant vers l'avant","Mantén la espalda recta al inclinarte hacia delante"],
+                        ["Breathe as you go further: you should feel a stretch in your hamstrings","Respirez en allant plus loin : vous devez sentir un étirement dans les ischio-jambiers","Respira mientras vas más lejos: debes notar el estiramiento en los isquiotibiales"]],
+  "Standing toe touch": [["Keep your legs straight and reach as far as you can","Gardez les jambes tendues et allez le plus loin possible","Mantén las piernas estiradas y llega lo más lejos que puedas"],
+                ["Let your head and arms hang heavy","Laissez la tête et les bras pendre","Deja que la cabeza y los brazos cuelguen"],
+                ["When done, roll up slowly, one vertebra at a time","À la fin, remontez lentement, vertèbre par vertèbre","Al terminar, sube despacio, vértebra a vértebra"]],
+  "World's greatest stretch": [["Step into a long lunge","Faites une grande fente","Da una zancada larga"],
+                ["Lock your arm against the inside of your front leg","Calez le bras contre l'intérieur de la jambe avant","Apoya el brazo contra el interior de la pierna de delante"],
+                ["Then rotate and reach your arm to the sky","Puis tournez et tendez le bras vers le ciel","Después gira y estira el brazo hacia el cielo"]],
+  "Deep lunge stretch": [["Back knee on the floor, front knee above your ankle","Genou arrière au sol, genou avant au-dessus de la cheville","Rodilla de atrás en el suelo, rodilla de delante sobre el tobillo"],
+                ["Gently push your hips forward","Poussez doucement le bassin vers l'avant","Empuja suavemente la cadera hacia delante"],
+                ["Chest up, back straight","Poitrine haute, dos droit","Pecho arriba, espalda recta"]],
+  "Superman plank": [["On all fours: hands under shoulders, knees under hips","À quatre pattes : mains sous les épaules, genoux sous les hanches","A cuatro patas: manos bajo los hombros, rodillas bajo la cadera"],
+                ["Lift your right arm and left leg, then switch sides","Levez le bras droit et la jambe gauche, puis changez de côté","Levanta el brazo derecho y la pierna izquierda, luego cambia de lado"],
+                ["Stay braced: back and hips straight and still","Restez gainé : dos et bassin droits et immobiles","Mantén el cuerpo firme: espalda y cadera rectas e inmóviles"],
+                ["Look at the floor to keep your neck aligned","Regardez le sol pour garder la nuque alignée","Mira al suelo para mantener el cuello alineado"]],
+  /* Cardio */
+  "Crossed elbow-knee touch": [["Bring your knee up to the opposite elbow","Montez le genou vers le coude opposé","Sube la rodilla hacia el codo contrario"],
+                ["Keep your back straight: the knee comes up, the chest doesn't drop","Gardez le dos droit : le genou monte, le buste ne descend pas","Mantén la espalda recta: sube la rodilla, no bajes el pecho"],
+                ["Steady rhythm, alternating sides","Rythme régulier, en alternant les côtés","Ritmo constante, alternando lados"]],
+  "Butt kicks": [["Bring your heels toward your glutes","Ramenez les talons vers les fessiers","Lleva los talones hacia los glúteos"],
+                ["Stay light on the balls of your feet (for your downstairs neighbour)","Restez léger sur l'avant du pied (pour votre voisin du dessous)","Mantente ligero sobre la parte delantera del pie (por tu vecino de abajo)"],
+                ["Keep your legs aligned with your body","Gardez les jambes alignées avec le corps","Mantén las piernas alineadas con el cuerpo"]],
+  "High knees": [["Lift your knees to hip height","Montez les genoux à hauteur des hanches","Sube las rodillas a la altura de la cadera"],
+                ["Stay on the balls of your feet","Restez sur l'avant du pied","Mantente sobre la parte delantera del pie"],
+                ["Use your arms to keep the rhythm","Aidez-vous des bras pour garder le rythme","Ayúdate de los brazos para mantener el ritmo"]],
+  "Jumping jacks": [["Land softly, knees slightly bent","Atterrissez en douceur, genoux légèrement fléchis","Aterriza con suavidad, rodillas un poco dobladas"],
+                ["Arms all the way up over your head","Bras bien tendus au-dessus de la tête","Brazos bien estirados por encima de la cabeza"]],
+  "Plain burpees (no jump, no push-up)": [["Squat down and place your hands on the floor","Accroupissez-vous et posez les mains au sol","Agáchate y apoya las manos en el suelo"],
+                ["Step your feet back to a plank, then forward again","Reculez les pieds un par un jusqu'à la planche, puis revenez","Lleva los pies atrás uno a uno hasta la plancha y vuelve"],
+                ["Stand up tall at the end of each repetition","Redressez-vous complètement à chaque répétition","Ponte bien erguido al final de cada repetición"]],
+  "Mountain climbers": [["Hands under your shoulders, body in a straight line","Mains sous les épaules, corps bien aligné","Manos bajo los hombros, cuerpo alineado"],
+                ["Drive your knees toward your chest","Ramenez les genoux vers la poitrine","Lleva las rodillas hacia el pecho"],
+                ["Keep your hips low and steady","Gardez le bassin bas et stable","Mantén la cadera baja y estable"]],
+  "Dynamic burpees (no push-up)": [["Hands on the floor, jump your feet back to a plank","Mains au sol, sautez les pieds en arrière jusqu'à la planche","Manos en el suelo, salta con los pies atrás hasta la plancha"],
+                ["Jump your feet back toward your hands","Ramenez les pieds vers les mains en sautant","Salta para llevar los pies hacia las manos"],
+                ["Finish with a jump, arms up, and land softly","Finissez par un saut bras en l'air et atterrissez en douceur","Termina con un salto con los brazos arriba y aterriza con suavidad"]],
+  "Plank": [["Elbows under your shoulders","Coudes sous les épaules","Codos bajo los hombros"],
+            ["Straight line from head to heels","Ligne droite de la tête aux talons","Línea recta de la cabeza a los talones"],
+            ["Tighten your belly and glutes, and keep breathing","Serrez le ventre et les fessiers, et continuez à respirer","Aprieta el abdomen y los glúteos, y sigue respirando"]],
+  "Side plank": [["Elbow under your shoulder","Coude sous l'épaule","Codo bajo el hombro"],
+            ["Hips lifted, body in a straight line","Bassin levé, corps aligné","Cadera arriba, cuerpo alineado"]],
+  /* Strength */
+  "Knee push-ups": [["Hands slightly wider than your shoulders","Mains un peu plus écartées que les épaules","Manos algo más separadas que los hombros"],
+            ["Straight line from knees to head","Ligne droite des genoux à la tête","Línea recta de las rodillas a la cabeza"],
+            ["Lower your chest close to the floor, elbows slightly tucked","Descendez la poitrine près du sol, coudes légèrement rentrés","Baja el pecho cerca del suelo, con los codos algo pegados"]],
+  "Push-ups": [["Hands slightly wider than your shoulders","Mains un peu plus écartées que les épaules","Manos algo más separadas que los hombros"],
+            ["Straight line from heels to head","Ligne droite des talons à la tête","Línea recta de los talones a la cabeza"],
+            ["Lower your chest close to the floor, elbows slightly tucked","Descendez la poitrine près du sol, coudes légèrement rentrés","Baja el pecho cerca del suelo, con los codos algo pegados"]],
+  "Bench dips": [["Hands on the edge of a stable chair or bench, fingers forward","Mains sur le bord d'une chaise ou d'un banc stable, doigts vers l'avant","Manos en el borde de una silla o banco estable, dedos hacia delante"],
+            ["Keep your back close to the bench","Gardez le dos près du banc","Mantén la espalda cerca del banco"],
+            ["Lower until your elbows reach 90°, then push up","Descendez jusqu'à 90° aux coudes, puis poussez","Baja hasta que los codos formen 90° y luego empuja"],
+            ["Bend your knees","Pliez les genoux","Dobla las rodillas"]],
+  "Lying leg kicks": [["Lie on your back, arms along your body, palms on the floor","Allongé sur le dos, bras le long du corps, paumes au sol","Tumbado boca arriba, brazos junto al cuerpo, palmas en el suelo"],
+                ["Lift your legs and make small, quick up-and-down kicks","Levez les jambes et faites de petits battements rapides de haut en bas","Levanta las piernas y haz pequeñas patadas rápidas arriba y abajo"],
+                ["Press your lower back into the floor","Plaquez le bas du dos au sol","Pega la zona lumbar al suelo"],
+                ["Easier: lift your legs higher","Plus facile : montez les jambes plus haut","Más fácil: sube más las piernas"]],
+  "Squats": [["Feet shoulder-width apart, toes slightly out","Pieds écartés de la largeur des épaules, pointes légèrement vers l'extérieur","Pies al ancho de los hombros, puntas un poco hacia fuera"],
+            ["Push your hips back as if sitting on a chair","Reculez les fesses comme pour vous asseoir sur une chaise","Lleva la cadera atrás como si te sentaras en una silla"],
+            ["Heels on the floor, chest up","Talons au sol, poitrine haute","Talones en el suelo, pecho arriba"]],
+  "Lunges": [["Take a big step and lower your back knee toward the floor","Faites un grand pas et descendez le genou arrière vers le sol","Da un paso largo y baja la rodilla de atrás hacia el suelo"],
+            ["Front knee above your ankle","Genou avant au-dessus de la cheville","Rodilla de delante sobre el tobillo"],
+            ["Chest up, back straight","Poitrine haute, dos droit","Pecho arriba, espalda recta"]],
+  "Kneeling triceps extensions": [["On your knees, hands under your shoulders, arms straight","À genoux, mains sous les épaules, bras tendus","De rodillas, manos bajo los hombros, brazos estirados"],
+            ["Lower onto your forearms, then push back up to straight arms","Descendez sur les avant-bras, puis poussez pour retendre les bras","Baja a los antebrazos y luego empuja hasta estirar los brazos"],
+            ["Keep your elbows close to your body","Gardez les coudes près du corps","Mantén los codos cerca del cuerpo"]],
+  "Triceps extensions": [["In a plank, hands under your shoulders, arms straight","En planche, mains sous les épaules, bras tendus","En plancha, manos bajo los hombros, brazos estirados"],
+            ["Lower onto your forearms, then push back up to straight arms","Descendez sur les avant-bras, puis poussez pour retendre les bras","Baja a los antebrazos y luego empuja hasta estirar los brazos"],
+            ["Body in a straight line, elbows close to your body","Corps aligné, coudes près du corps","Cuerpo alineado, codos cerca del cuerpo"]],
+  "Superman jacks": [["Lie face down, chest, arms and legs slightly off the floor","Allongé sur le ventre, buste, bras et jambes légèrement décollés du sol","Boca abajo, con pecho, brazos y piernas un poco despegados del suelo"],
+            ["Open and close your arms and legs like a jumping jack","Écartez et resserrez bras et jambes comme un jumping jack","Abre y cierra brazos y piernas como en un jumping jack"],
+            ["Look at the floor to keep your neck relaxed","Regardez le sol pour garder la nuque détendue","Mira al suelo para mantener el cuello relajado"]],
+  "V-ups": [["Lie on your back, arms above your head","Allongé sur le dos, bras au-dessus de la tête","Tumbado boca arriba, brazos por encima de la cabeza"],
+            ["Lift your legs and upper body together to reach your toes","Montez jambes et buste en même temps pour toucher vos pieds","Sube piernas y tronco a la vez para tocar los pies"],
+            ["Lower slowly; bend your knees to make it easier","Redescendez lentement ; pliez les genoux pour faciliter","Baja despacio; dobla las rodillas para hacerlo más fácil"]],
+  "Jump squats": [["Squat down, then jump up explosively","Descendez en squat, puis sautez de façon explosive","Baja en sentadilla y salta con fuerza"],
+            ["Land softly, knees slightly bent","Atterrissez en douceur, genoux légèrement fléchis","Aterriza con suavidad, rodillas un poco dobladas"],
+            ["Go straight into the next squat","Enchaînez directement avec le squat suivant","Enlaza directamente con la siguiente sentadilla"]],
+  "Jump lunges": [["Start in a lunge, jump and switch legs in the air","Partez en fente, sautez et changez de jambe en l'air","Empieza en zancada, salta y cambia de pierna en el aire"],
+            ["Land softly, front knee above your ankle","Atterrissez en douceur, genou avant au-dessus de la cheville","Aterriza con suavidad, rodilla de delante sobre el tobillo"],
+            ["Chest up","Poitrine haute","Pecho arriba"]]
+};
+function tipsHTML(e){
+  const list = TIPS[baseKey(e)]; if(!list || !list.length) return "";
+  const li = x => Array.isArray(x) ? `<li>${L(x)}</li>` : `<li>${L(x.t)}<ul>${x.sub.map(y=>`<li>${L(y)}</li>`).join("")}</ul></li>`;
+  return `<h3 class="tipsh">${t("focusOn")}</h3><ul class="tips">${list.map(li).join("")}</ul>`;
+}
+const SESSIONS = [
+  {id:"m1",type:"mobility",levels:{beginner:MOB_BEG,intermediate:MOB_INT,expert:MOB_EXP},name:["Get your body started","Mettez votre corps en marche","Pon tu cuerpo en marcha"],desc:["Gentle warm-up for neck, hips and spine.","Échauffement doux pour le cou, les hanches et le dos.","Calentamiento suave para cuello, caderas y espalda."]},
+  {id:"c1",type:"cardio",levels:{beginner:CAR_BEG,intermediate:CAR_INT,expert:CAR_EXP},name:["Get your heart pumping","Faites monter le rythme","Haz latir tu corazón"],desc:["Get your heart rate up, at your own pace.","Faites monter le cœur, à votre rythme.","Sube el pulso a tu ritmo."]},
+  {id:"s1",type:"strength",levels:{beginner:STR_BEG,intermediate:STR_INT,expert:STR_EXP},name:["Get your muscles working","Réveillez vos muscles","Activa tus músculos"],desc:["Arms, chest, legs and core using your body weight.","Bras, pectoraux, jambes et gainage avec le poids du corps.","Brazos, pecho, piernas y abdomen con tu peso corporal."]}
+];
+/* ---- Cards (collectibles): add new ones here, in the order shown in the collection.
+   c = colour, g = icon path, ok = unlock rule. Texts: [EN, FR, ES] ---- */
+const CARDS = [
+  {id:"first",c:"#E0A019",g:"M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",ok:x=>x.sessions>=1,
+   n:["First step","Premier pas","Primer paso"],d:["Complete your first session.","Terminez votre première séance.","Completa tu primera sesión."]},
+  {id:"early",c:"#3E8FC9",g:"M3 18h18M6 18a6 6 0 0112 0M12 6v3M4.5 10.5l2 2M19.5 10.5l-2 2",ok:x=>x.early,
+   n:["Early riser","Lève-tôt","Amanecer"],d:["Finish a session before 9 am.","Terminez une séance avant 9 h.","Termina una sesión antes de las 9:00."]},
+  {id:"evening",c:"#3B4A9E",g:"M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z",ok:x=>x.evening,
+   n:["Evening glow","Lueur du soir","Al atardecer"],d:["Finish a session after 8 pm.","Terminez une séance après 20 h.","Termina una sesión después de las 20:00."]},
+  {id:"weekend",c:"#C2577A",g:"M5 10h11v4a5 5 0 01-5 5h-1a5 5 0 01-5-5zM16 11h2a2 2 0 010 4h-2M8 3c0 2 2 2 2 4M12 3c0 2 2 2 2 4",ok:x=>x.weekend,
+   n:["Weekend mover","Week-end actif","Fin de semana activo"],d:["Do a session on a Saturday or Sunday.","Faites une séance un samedi ou un dimanche.","Haz una sesión un sábado o un domingo."]},
+  {id:"three",c:"#E2703A",g:"M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z",ok:x=>x.best>=3,
+   n:["On a roll","En route","En racha"],d:["Train 3 days in a row.","Entraînez-vous 3 jours d'affilée.","Entrena 3 días seguidos."]},
+  {id:"fullday",c:"#2A8C8C",g:"M12 8a4 4 0 100 8 4 4 0 000-8zM12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2",ok:x=>x.full>=1,
+   n:["Full day","Journée complète","Día completo"],d:["Complete mobility, cardio and strength in one day.","Faites mobilité, cardio et force dans la même journée.","Completa movilidad, cardio y fuerza en un mismo día."]},
+  {id:"nextlvl",c:"#1F8A9E",g:"M4 20h5v-5h5v-5h5V5M15 5h4v4",ok:x=>x.lvl2,
+   n:["Next level","Niveau supérieur","Siguiente nivel"],d:["Complete an Intermediate or Expert session.","Terminez une séance Intermédiaire ou Expert.","Completa una sesión de nivel Intermedio o Experto."]},
+  {id:"week",c:"#5B5BD6",g:"M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M8 15l3 3 5-6",ok:x=>x.best>=7,
+   n:["Full week","Semaine complète","Semana completa"],d:["Train 7 days in a row.","Entraînez-vous 7 jours d'affilée.","Entrena 7 días seguidos."]},
+  {id:"ten",c:"#3C8D5A",g:"M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12",ok:x=>x.sessions>=10,
+   n:["Ten sessions","Dix séances","Diez sesiones"],d:["Complete 10 sessions.","Terminez 10 séances.","Completa 10 sesiones."]},
+  {id:"expert",c:"#6B4E9B",g:"M3 20l6-10 4 6 3-4 5 8zM9 10l1.5 2.5",ok:x=>x.expert,
+   n:["Summit","Sommet","Cumbre"],d:["Complete an Expert session.","Terminez une séance Expert.","Completa una sesión de nivel Experto."]},
+  {id:"thirty",c:"#C04A8A",g:"M8 3l4 6 4-6M12 9a6 6 0 100 12 6 6 0 000-12z",ok:x=>x.best>=30,
+   n:["30-day streak","30 jours d'affilée","30 días seguidos"],d:["Train 30 days in a row.","Entraînez-vous 30 jours d'affilée.","Entrena 30 días seguidos."]},
+  {id:"hundred",c:"#B8860B",g:"M7 4h10v5a5 5 0 01-10 0zM7 6H4v2a3 3 0 003 3M17 6h3v2a3 3 0 01-3 3M12 14v4M8 21h8M10 18h4",ok:x=>x.best>=100,
+   n:["100-day streak","100 jours d'affilée","100 días seguidos"],d:["Train 100 days in a row.","Entraînez-vous 100 jours d'affilée.","Entrena 100 días seguidos."]}
+];
+/* ---- App texts: [English, Français, Español] ---- */
+const S = {
+  ready:["Ready when you are.","Prêt quand vous l'êtes.","Listo cuando quieras."],
+  one:["Great start! {x} session done.","Super début ! Séance de {x} terminée.","¡Gran comienzo! Sesión de {x} completada."],
+  two:["Almost done for the day!","Presque terminé pour aujourd'hui !","¡Casi terminado por hoy!"],
+  three:["Well done! Day complete.","Bravo ! Journée terminée.","¡Bien hecho! Día completado."],
+  sub:["A few minutes a day is enough. Take a first step towards a healthier lifestyle.","Quelques minutes par jour suffisent. Faites un premier pas vers un mode de vie plus sain.","Unos minutos al día bastan. Da un primer paso hacia un estilo de vida más saludable."],
+  today:["today","aujourd'hui","hoy"],
+  week:["This week","Cette semaine","Esta semana"],
+  next:["Next up","À suivre","A continuación"], goto:["Go to session","Voir la séance","Ir a la sesión"],
+  alldone:["All three sessions done today. Great work, see you tomorrow.","Les trois séances sont faites aujourd'hui. Excellent travail, à demain.","Las tres sesiones están hechas hoy. Gran trabajo, hasta mañana."],
+  /* Safety note: currently NOT shown. Put it back on the Today page before any commercial release. */
+  safe:["Stop if you feel pain, dizziness or shortness of breath. Check with your doctor before starting a new exercise routine.","Arrêtez-vous en cas de douleur, vertige ou essoufflement. Consultez votre médecin avant de commencer une nouvelle activité physique.","Para si sientes dolor, mareo o falta de aire. Consulta a tu médico antes de empezar una nueva rutina de ejercicio."],
+  tToday:["Today","Aujourd'hui","Hoy"], tSess:["Sessions","Séances","Sesiones"], tProg:["Progress","Progrès","Progreso"],
+  choose:["Choose what your body needs today.","Choisissez ce dont votre corps a besoin aujourd'hui.","Elige lo que tu cuerpo necesita hoy."],
+  focusQ:["Having a hard time with an exercise?","Un exercice vous pose problème ?","¿Te cuesta algún ejercicio?"],
+  focusSub:["Focus on one specific exercise","Concentrez-vous sur un exercice en particulier","Concéntrate en un ejercicio concreto"],
+  yprog:["Your progress","Votre progression","Tu progreso"],
+  nsess:["sessions","séances","sesiones"], mins:["minutes","minutes","minutos"], strk:["day streak","jours d'affilée","días seguidos"],
+  first:["Your first session will appear here.","Votre première séance apparaîtra ici.","Tu primera sesión aparecerá aquí."],
+  del:["Delete my data","Supprimer mes données","Borrar mis datos"],
+  delTitle:["Delete all your data?","Supprimer toutes vos données ?","¿Borrar todos tus datos?"],
+  delMsg:["This will permanently erase your progress and your choices (name, language) from this device. This cannot be undone.","Cela effacera définitivement votre progression et vos choix (nom, langue) de cet appareil. Cette action est irréversible.","Esto borrará de forma permanente tu progreso y tus elecciones (nombre, idioma) de este dispositivo. No se puede deshacer."],
+  cancel:["Cancel","Annuler","Cancelar"], delYes:["Yes, delete","Oui, supprimer","Sí, borrar"],
+  reset:["Reset my data","Réinitialiser mes données","Borrar mis datos"],
+  welcome:["Welcome","Bienvenue","Bienvenido"], welcomeSub:["Tell us a little about yourself.","Présentez-vous en quelques mots.","Cuéntanos un poco sobre ti."],
+  firstN:["First name","Prénom","Nombre"], lastN:["Last name","Nom","Apellido"],
+  nameNote:["Your name stays on this phone.","Votre nom reste sur ce téléphone.","Tu nombre se queda en este teléfono."],
+  confirm:["Confirm","Confirmer","Confirmar"], getStarted:["Get started","Commencer","Empezar"],
+  /* Introduction page shown once, after the name. {x} = first name */
+  dear:["Dear {x},","Bonjour {x},","Hola, {x}:"],
+  intro:["This is Minute Fit, an app meant to accompany you through your daily exercise. I firmly believe that a couple of minutes a day, consistently put into exercising and moving your body, can make a huge difference. I hope you enjoy your experience with Minute Fit.",
+    "Voici Minute Fit, une application conçue pour vous accompagner dans votre activité physique quotidienne. Je crois fermement que quelques minutes par jour, consacrées régulièrement à faire de l'exercice et à bouger, peuvent faire une énorme différence. J'espère que vous apprécierez votre expérience avec Minute Fit.",
+    "Esto es Minute Fit, una aplicación pensada para acompañarte en tu ejercicio diario. Creo firmemente que unos pocos minutos al día, dedicados con constancia a hacer ejercicio y mover el cuerpo, pueden marcar una gran diferencia. Espero que disfrutes de tu experiencia con Minute Fit."],
+  ach:["Achievements","Succès","Logros"], cardsT:["Cards","Cartes","Cartas"], focusOn:["Tips","Conseils","Consejos"],
+  styleT:["Style","Style","Estilo"], st_original:["Classic","Classique","Clásico"], st_garden:["Garden","Jardin","Jardín"], st_night:["Night sky","Ciel étoilé","Cielo estrellado"],
+  sub_garden:["Each week, a new plant. The more you move, the more it grows!","Chaque semaine, une nouvelle plante. Plus vous bougez, plus elle grandit !","Cada semana, una planta nueva. ¡Cuanto más te mueves, más crece!"],
+  sub_night:["Light a star every day. Each week draws a new constellation.","Allumez une étoile chaque jour. Chaque semaine dessine une nouvelle constellation.","Enciende una estrella cada día. Cada semana dibuja una nueva constelación."],
+  daysWeek:["{n} of 7 days this week","{n} jours sur 7 cette semaine","{n} de 7 días esta semana"], daysWeek1:["{n} of 7 days this week","{n} jour sur 7 cette semaine","{n} de 7 días esta semana"],
+  budsLeft:["{n} buds left to open today","Encore {n} boutons à faire éclore aujourd'hui","Quedan {n} capullos por abrir hoy"],
+  budLeft1:["1 bud left to open today","Encore 1 bouton à faire éclore aujourd'hui","Queda 1 capullo por abrir hoy"],
+  allOpen:["All three flowers are open today","Les trois fleurs sont écloses aujourd'hui","Las tres flores están abiertas hoy"],
+  star0:["Do a session to light today's star","Faites une séance pour allumer l'étoile du jour","Haz una sesión para encender la estrella de hoy"],
+  star1:["Today's star is lit! 2 more sessions till full brightness","L'étoile du jour est allumée ! Encore 2 séances pour qu'elle brille pleinement","¡La estrella de hoy está encendida! 2 sesiones más para que brille al máximo"],
+  star2:["Almost there: 1 more session till full brightness","Presque ! Encore 1 séance pour qu'elle brille pleinement","¡Casi! 1 sesión más para que brille al máximo"],
+  starAll:["Today's star shines at full brightness","L'étoile du jour brille de tout son éclat","La estrella de hoy brilla con toda su fuerza"],
+  gardenT:["Your garden","Votre jardin","Tu jardín"],
+  recapT:["Last week","La semaine dernière","La semana pasada"], rDays:["days active","jours actifs","días activos"],
+  rFresh:["A new week starts. Every day is a fresh chance to move.","Une nouvelle semaine commence. Chaque jour est une nouvelle occasion de bouger.","Empieza una nueva semana. Cada día es una nueva oportunidad para moverte."],
+  rGrew:["Grew for {n} of 7 days","A poussé {n} jours sur 7","Creció {n} de 7 días"], rFull:["Fully grown!","Taille maximale atteinte !","¡Tamaño máximo alcanzado!"],
+  rStars:["Stars lit: {n} of 7","Étoiles allumées : {n} sur 7","Estrellas encendidas: {n} de 7"], rSkyFull:["Constellation complete!","Constellation complète !","¡Constelación completa!"],
+  nextT:["Coming this week","À venir cette semaine","Llega esta semana"],
+  letsGo:["Let's go!","C'est parti !","¡Vamos!"], shareBtn:["Share","Partager","Compartir"],
+  shareDay:["I completed all three sessions today with Minute Fit!","J'ai fait mes trois séances aujourd'hui avec Minute Fit !","¡Hoy completé mis tres sesiones con Minute Fit!"],
+  shareCard:["I earned the card \"{c}\" on Minute Fit!","J'ai gagné la carte « {c} » sur Minute Fit !","¡Conseguí la carta «{c}» en Minute Fit!"], storyA:["The story of this constellation","L'histoire de cette constellation","La historia de esta constelación"], plantA:["About this plant","À propos de cette plante","Sobre esta planta"], backGarden:["Back to my garden","Retour à mon jardin","Volver a mi jardín"], backSky:["Back to my sky","Retour à mon ciel","Volver a mi cielo"], skyT:["Your sky","Votre ciel","Tu cielo"],
+  newCard:["New card!","Nouvelle carte !","¡Nueva carta!"], cardOf:["Card {n} of {t}","Carte {n} sur {t}","Carta {n} de {t}"],
+  coll:["Your collection","Votre collection","Tu colección"], cont:["Continue","Continuer","Continuar"], snd:["Sounds","Sons","Sonidos"],
+  bestS:["longest streak (days)","plus longue série (jours)","racha más larga (días)"], fullD:["full days completed","journées complètes","días completos"],
+  unl:["Unlocked","Débloquée","Desbloqueada"], lck:["Locked","Verrouillée","Bloqueada"],
+  totalT:["total time","temps total","tiempo total"],
+  hist:["History","Historique","Historial"], fdays:["full days","journées complètes","días completos"],
+  histEmpty:["Your history will appear here after your first session.","Votre historique apparaîtra ici après votre première séance.","Tu historial aparecerá aquí después de tu primera sesión."],
+  lvlQ:["Choose your level","Choisissez votre niveau","Elige tu nivel"], prog:["Your program","Votre programme","Tu programa"],
+  lv_beginner:["Beginner","Débutant","Principiante"], lv_intermediate:["Intermediate","Intermédiaire","Intermedio"], lv_expert:["Expert","Expert","Experto"],
+  ld_beginner:["Gentle pace, ideal to get started.","Rythme doux, idéal pour commencer.","Ritmo suave, ideal para empezar."],
+  ld_intermediate:["A bit more challenge.","Un peu plus de défi.","Un poco más de desafío."],
+  ld_expert:["For those already at ease with exercise.","Pour ceux déjà à l'aise avec l'exercice.","Para quienes ya se sienten cómodos con el ejercicio."],
+  start:["Start session","Commencer la séance","Empezar sesión"], back:["Change level","Changer de niveau","Cambiar nivel"],
+  rest:["Rest","Repos","Descanso"], getReady:["Get ready","Préparez-vous","Prepárate"], goT:["GO!","PARTEZ !","¡YA!"], nextUp:["Next up:","Ensuite :","A continuación:"], nextB:["Next","Suivant","Siguiente"],
+  pause:["Pause","Pause","Pausa"], resume:["Resume","Reprendre","Reanudar"], skip:["Skip","Passer","Saltar"], end:["End session","Arrêter la séance","Terminar sesión"],
+  of:["of","sur","de"], comp:["Session complete.","Séance terminée.","Sesión completada."],
+  dtxt:["minutes done. That's how habits start.","minutes faites. C'est ainsi que naissent les habitudes.","minutos hechos. Así empiezan los hábitos."],
+  home:["Back to home","Retour à l'accueil","Volver al inicio"],
+  demo:["Your demo video will appear here","Votre vidéo de démonstration apparaîtra ici","Tu vídeo de demostración aparecerá aquí"],
+  menu:["Menu","Menu","Menú"], lang:["Language","Langue","Idioma"], look:["Appearance","Apparence","Apariencia"],
+  auto:["Auto","Auto","Auto"], light:["Light","Clair","Claro"], dark:["Dark","Sombre","Oscuro"],
+  remind:["Daily reminder","Rappel quotidien","Recordatorio diario"],
+  remindNote:["At 6 pm, only on days you haven't done a session yet.","À 18 h, seulement les jours où vous n'avez pas encore fait de séance.","A las 18:00, solo los días en que aún no has hecho ninguna sesión."],
+  on:["On","Activé","Activado"], off:["Off","Désactivé","Desactivado"],
+  remindBlocked:["Notifications are blocked for Minute Fit. You can allow them in your phone's settings.","Les notifications sont bloquées pour Minute Fit. Vous pouvez les autoriser dans les réglages de votre téléphone.","Las notificaciones están bloqueadas para Minute Fit. Puedes permitirlas en los ajustes de tu teléfono."],
+  remindHome:["To get reminders, open Minute Fit from its icon on your home screen.","Pour recevoir des rappels, ouvrez Minute Fit depuis son icône sur l'écran d'accueil.","Para recibir recordatorios, abre Minute Fit desde su icono en la pantalla de inicio."],
+  size:["Text size","Taille du texte","Tamaño del texto"], normal:["Normal","Normal","Normal"], large:["Large","Grand","Grande"], close:["Close","Fermer","Cerrar"]
+};
+const TN = {mobility:["Mobility","Mobilité","Movilidad"],cardio:["Cardio","Cardio","Cardio"],strength:["Strength","Force","Fuerza"]};
+const LANGS = ["en","fr","es"], LN = {en:"English",fr:"Français",es:"Español"}, DAYS = {en:"MTWTFSS",fr:"LMMJVSD",es:"LMXJVSD"};
+/* ================================================= */
+
+const $ = s => document.querySelector(s);
+let tab = "today", timer = null;
+const rd = (k,d) => { try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } };
+const wr = (k,v) => { try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
+let log = rd("fb-log",[]);
+const nav = (navigator.language||"en").slice(0,2);
+let cfg = Object.assign({lang:LANGS.includes(nav)?nav:"en", theme:"auto", size:1, first:"", last:"", started:false, remind:false, style:"original"}, rd("fb-cfg",{}));
+const li = () => LANGS.indexOf(cfg.lang);
+const t = k => S[k][li()], L = a => a[li()], tn = k => TN[k][li()];
+function apply(){
+  const r = document.documentElement; r.lang = cfg.lang;
+  if(cfg.theme==="auto") r.removeAttribute("data-theme"); else r.dataset.theme = cfg.theme;
+  r.style.setProperty("--s", cfg.size); r.dataset.style = sty();
+  /* colour of the phone's top bar follows the app's light/dark choice */
+  const dark = cfg.theme==="dark" || (cfg.theme==="auto" && matchMedia("(prefers-color-scheme:dark)").matches);
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m,i)=>{ if(i) m.remove(); else { m.removeAttribute("media"); m.content = sty()==="night" ? "#0E1530" : sty()==="garden" ? "#E6EFE4" : (dark ? "#0F1E24" : "#F2F5F3"); } });
+}
+function set(k,v){ cfg[k]=v; wr("fb-cfg",cfg); apply(); render(); openMenu(); }
+
+const day = d => new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris"}).format(d);
+const mins = (s,lv) => Math.round(s.levels[lv||"beginner"].reduce((a,e)=>a+(e.gate?0:e.secs+(e.rest||0)),0)/60);
+/* Duration on session cards: one number, or a range like 20/25 when levels differ */
+function durHTML(s){
+  const m = [...new Set(LVS.map(lv=>mins(s,lv)))].sort((a,b)=>a-b);
+  return `<b style="white-space:nowrap">${m.length>1 ? m[0]+"/"+m[m.length-1] : m[0]} min</b>`;
+}
+function fmtTime(m){
+  const h = Math.floor(m/60), r = m%60;
+  return h<1 ? `${m}<small> min</small>` : `${h}<small> h</small>${r?" "+String(r).padStart(2,"0"):""}`;
+}
+function streak(){
+  const days = new Set(log.map(l=>l.date)); let n=0, d=new Date();
+  if(!days.has(day(d))) d.setDate(d.getDate()-1);
+  while(days.has(day(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function weekDots(){
+  const today = day(new Date()), tt = new Date(today+"T12:00:00Z"), by = {};
+  log.forEach(l=>{ const s=SESSIONS.find(x=>x.id===l.session); if(s) (by[l.date]=by[l.date]||new Set()).add(s.type); });
+  const cells = DAYS[cfg.lang].split("").map((n,i)=>{ const d=new Date(tt);
+    d.setUTCDate(tt.getUTCDate()-((tt.getUTCDay()+6)%7)+i); const k=d.toISOString().slice(0,10);
+    return `<div class="dot ${k===today?"today":""}"><div class="l">${n}</div><div class="rg" role="img" aria-label="${dayLabel(d.getUTCDate(),by[k])}">${miniRing(by[k])}<span>${d.getUTCDate()}</span></div></div>`; }).join("");
+  return `<div class="week">${cells}</div><div class="legend"><span style="--c:var(--mob)">${tn("mobility")}</span><span style="--c:var(--car)">${tn("cardio")}</span><span style="--c:var(--str)">${tn("strength")}</span></div>`;
+}
+const TVAR = {mobility:"--mob",cardio:"--car",strength:"--str"};
+function miniRing(types){
+  const pt = a => { const r=a*Math.PI/180; return (50+40*Math.cos(r)).toFixed(1)+" "+(50+40*Math.sin(r)).toFixed(1); };
+  return '<svg viewBox="0 0 100 100" aria-hidden="true">' + Object.keys(TN).map((ty,i)=>{ const a0=-90+8+i*120;
+    return `<path d="M${pt(a0)} A40 40 0 0 1 ${pt(a0+104)}" fill="none" stroke="${types&&types.has(ty)?`var(${TVAR[ty]})`:"var(--line)"}" stroke-width="9" stroke-linecap="round"/>`; }).join("") + '</svg>';
+}
+const dayLabel = (n, types) => n + (types&&types.size ? ": "+[...types].map(ty=>tn(ty)).join(", ") : "");
+function ringHTML(done, anim){
+  const R=78, C=100, G=14, LEN=120-G, types=Object.keys(TN);
+  const pt = a => { const r=a*Math.PI/180; return (C+R*Math.cos(r)).toFixed(2)+" "+(C+R*Math.sin(r)).toFixed(2); };
+  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const animating = !!(anim && anim.fresh && !reduce && done.has(anim.type));
+  const segs = types.map((ty,i)=>{
+    const a0 = -90+G/2+i*120, d = `M${pt(a0)} A${R} ${R} 0 0 1 ${pt(a0+LEN)}`;
+    return `<path d="${d}" class="seg-track"/>` + (done.has(ty) ? `<path id="seg-${ty}" d="${d}" pathLength="100" class="seg-fill" style="stroke:var(${TVAR[ty]});stroke-dashoffset:${animating&&anim.type===ty?99.9:0}"/>` : "");
+  }).join("");
+  const n = types.filter(ty=>done.has(ty)).length, shown = n-(animating?1:0);
+  return `<div class="ring" id="ring" role="img" aria-label="${n}/${types.length} ${t("today")}"><svg viewBox="0 0 200 200" aria-hidden="true">${segs}</svg>
+  <div class="ringc"><b id="ringN">${shown}/${types.length}</b><span>${t("today")}</span></div></div>
+  <div class="legend rlegend">${types.map(ty=>`<span style="--c:var(${TVAR[ty]});${done.has(ty)?"color:var(--ink);font-weight:700":""}">${tn(ty)}</span>`).join("")}</div>`;
+}
+/* ============ STYLES: Original (ring), Garden (a new plant each week), Night sky (a new constellation each week) ============ */
+/* Plants: one per week, in this order (then it starts again). Texts: [EN, FR, ES] */
+const PLANTS = [
+  {id:"fern", f:"daisy", n:["Fern","Fougère","Helecho"]},
+  {id:"cactus", f:"star", n:["Cactus","Cactus","Cactus"]},
+  {id:"sunflower", f:"sunny", n:["Sunflower","Tournesol","Girasol"]},
+  {id:"oak", f:"round", n:["Oak tree","Chêne","Roble"]},
+  {id:"lavender", f:"spike", n:["Lavender","Lavande","Lavanda"]},
+  {id:"monstera", f:"spathe", n:["Monstera","Monstera","Monstera"]},
+  {id:"bamboo", f:"cross", n:["Bamboo","Bambou","Bambú"]},
+  {id:"cherry", f:"cluster", n:["Cherry tree","Cerisier","Cerezo"]},
+  {id:"tulips", f:"tulip", n:["Tulips","Tulipes","Tulipanes"]},
+  {id:"pine", f:"bell", n:["Pine tree","Pin","Pino"]},
+  {id:"succulent", f:"burst", n:["Succulent","Plante grasse","Suculenta"]},
+  {id:"palm", f:"hibiscus", n:["Palm tree","Palmier","Palmera"]},
+  {id:"rose", f:"rose", n:["Rose bush","Rosier","Rosal"]},
+  {id:"orchid", f:"orchid", n:["Orchid","Orchidée","Orquídea"]},
+  {id:"hydrangea", f:"pompom", n:["Hydrangea","Hortensia","Hortensia"]},
+  {id:"olive", f:"star4", n:["Olive tree","Olivier","Olivo"]}
+];
+/* Constellations: one per week, 7 stars = Monday to Sunday. s = star positions (0-100), l = lines between stars */
+const SKY = [
+  {n:["Big Dipper","Grande Ourse","Osa Mayor"], s:[[4,22],[21,27],[36,33],[50,39],[55,60],[83,64],[87,39]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},
+  {n:["Orion","Orion","Orión"], s:[[24,14],[72,20],[40,52],[50,49],[60,46],[30,88],[76,82]], l:[[0,1],[0,2],[1,4],[2,3],[3,4],[2,5],[4,6]]},
+  {n:["Pleiades","Pléiades","Pléyades"], s:[[50,52],[76,54],[80,40],[24,42],[34,28],[46,18],[40,62]], l:[[3,4],[4,5],[5,0],[0,6],[6,3],[0,1],[1,2]]},
+  {n:["Cygnus","Cygne","Cisne"], s:[[50,6],[50,38],[50,62],[50,94],[80,30],[22,48],[8,66]], l:[[0,1],[1,2],[2,3],[4,1],[1,5],[5,6]]},
+  {n:["Corona Borealis","Couronne boréale","Corona Boreal"], s:[[8,30],[18,52],[36,66],[56,66],[72,56],[84,40],[90,22]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},
+  {n:["Leo","Lion","Leo"], s:[[20,74],[22,52],[32,34],[30,16],[66,38],[92,52],[66,62]], l:[[0,1],[1,2],[2,3],[2,4],[4,5],[5,6],[6,0]]},
+  {n:["Little Dipper","Petite Ourse","Osa Menor"], s:[[6,18],[22,26],[36,36],[50,46],[60,64],[88,60],[80,40]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},
+  {n:["Taurus","Taureau","Tauro"], s:[[62,64],[50,54],[38,44],[10,14],[44,68],[14,62],[84,80]], l:[[6,0],[0,1],[1,2],[2,3],[0,4],[4,5]]},
+  {n:["Aquila","Aigle","Águila"], s:[[50,48],[44,34],[56,60],[38,70],[28,16],[22,92],[80,80]], l:[[4,1],[1,0],[0,2],[2,6],[0,3],[3,5]]},
+  {n:["Boötes","Bouvier","Boyero"], s:[[48,90],[66,86],[70,56],[60,28],[46,8],[28,20],[32,52]], l:[[0,6],[6,5],[5,4],[4,3],[3,2],[2,0],[0,1]]},
+  {n:["Pegasus","Pégase","Pegaso"], s:[[58,58],[58,22],[94,20],[94,56],[34,62],[18,76],[4,66]], l:[[0,1],[1,2],[2,3],[3,0],[0,4],[4,5],[5,6]]},
+  {n:["Canis Major","Grand Chien","Can Mayor"], s:[[40,22],[18,16],[48,44],[56,62],[52,90],[80,74],[30,80]], l:[[1,0],[0,2],[2,3],[3,4],[3,5],[4,6]]},
+  {n:["Gemini","Gémeaux","Géminis"], s:[[28,10],[50,14],[24,46],[14,82],[50,48],[44,66],[52,90]], l:[[0,1],[0,2],[2,3],[1,4],[4,5],[5,6]]},
+  {n:["Scorpius","Scorpion","Escorpio"], s:[[82,12],[74,26],[60,38],[48,58],[40,78],[24,86],[12,70]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},
+  {n:["Lyra","Lyre","Lira"], s:[[30,12],[16,22],[40,32],[64,38],[56,86],[32,80],[44,4]], l:[[0,1],[0,2],[1,2],[2,3],[3,4],[4,5],[5,2],[0,6]]},
+  {n:["Hercules","Hercule","Hércules"], s:[[36,18],[60,14],[64,42],[38,46],[80,70],[86,94],[20,70]], l:[[0,1],[1,2],[2,3],[3,0],[2,4],[4,5],[3,6]]}
+];
+/* Stories shown with the (i) button in the Night sky, same order as SKY. Texts: [EN, FR, ES] */
+const SKY_STORY = [
+  ["In Greek myth, the nymph Callisto was turned into a bear, and Zeus placed her among the stars to keep her safe. These seven stars are the brightest part of her constellation, the Great Bear; in Britain they are called the Plough. Follow the two stars at the end of the bowl upwards and you will find the North Star: travellers have used this trick for thousands of years.",
+   "Dans la mythologie grecque, la nymphe Callisto fut changée en ourse, et Zeus la plaça parmi les étoiles pour la protéger. Ces sept étoiles, que l'on surnomme aussi « la Casserole », en sont la partie la plus brillante. Prolongez vers le haut les deux étoiles du bout de la casserole et vous trouverez l'étoile Polaire : les voyageurs utilisent cette astuce depuis des millénaires.",
+   "En la mitología griega, la ninfa Calisto fue convertida en osa, y Zeus la colocó entre las estrellas para protegerla. Estas siete estrellas, a las que muchos llaman «el Carro», son la parte más brillante de la Osa Mayor. Si prolongas hacia arriba las dos estrellas del extremo, encontrarás la Estrella Polar: los viajeros usan este truco desde hace miles de años."],
+  ["Orion was a giant hunter of Greek legend. A scorpion stung him, and the gods placed both in the sky on opposite sides: when the Scorpion rises in the east, Orion sets in the west, so they never meet. Look for his belt of three stars in a row. Red Betelgeuse marks his shoulder and blue-white Rigel his foot.",
+   "Orion était un chasseur géant de la mythologie grecque. Un scorpion le piqua, et les dieux les placèrent tous deux dans le ciel, de part et d'autre : quand le Scorpion se lève à l'est, Orion se couche à l'ouest, si bien qu'ils ne se croisent jamais. Cherchez sa ceinture de trois étoiles alignées. Bételgeuse, rouge, marque son épaule, et Rigel, bleu-blanc, son pied.",
+   "Orión era un cazador gigante de la mitología griega. Un escorpión lo picó, y los dioses los colocaron a ambos en el cielo, en lados opuestos: cuando el Escorpión sale por el este, Orión se pone por el oeste, así que nunca se encuentran. Busca su cinturón de tres estrellas alineadas. Betelgeuse, roja, marca su hombro, y Rigel, blanco azulada, su pie."],
+  ["The Pleiades are the seven daughters of the Titan Atlas. To protect them from Orion, who was chasing them, Zeus turned them into doves and then into stars, and Orion still follows them across the sky. Farmers and sailors in ancient Greece watched them to know when to sow, harvest or set sail. Most people can only see six: legend says the seventh sister hides her face. In Japan they are called Subaru.",
+   "Les Pléiades sont les sept filles du Titan Atlas. Pour les protéger d'Orion qui les poursuivait, Zeus les changea en colombes, puis en étoiles, et Orion les suit encore dans le ciel. Dans la Grèce antique, paysans et marins les observaient pour savoir quand semer, récolter ou prendre la mer. On n'en voit souvent que six : la légende dit que la septième sœur cache son visage. Au Japon, on les appelle Subaru.",
+   "Las Pléyades son las siete hijas del titán Atlas. Para protegerlas de Orión, que las perseguía, Zeus las convirtió en palomas y luego en estrellas, y Orión todavía las sigue por el cielo. En la antigua Grecia, campesinos y marineros las observaban para saber cuándo sembrar, cosechar o zarpar. La mayoría solo ve seis: la leyenda dice que la séptima hermana esconde su rostro. En Japón se llaman Subaru."],
+  ["Cygnus is a swan flying along the Milky Way with its wings spread wide. In one Greek legend, Zeus took the form of a swan; in another, the musician Orpheus was turned into one and placed beside his lyre, the constellation Lyra. Its tail star, Deneb, is one of the most luminous stars we can see with the naked eye. Its shape is also known as the Northern Cross.",
+   "Le Cygne vole le long de la Voie lactée, les ailes grandes ouvertes. Selon une légende grecque, Zeus prit la forme d'un cygne ; selon une autre, le musicien Orphée fut changé en cygne et placé près de sa lyre, la constellation de la Lyre. L'étoile de sa queue, Deneb, est l'une des plus lumineuses visibles à l'œil nu. On l'appelle aussi la Croix du Nord.",
+   "El Cisne vuela a lo largo de la Vía Láctea con las alas bien abiertas. Según una leyenda griega, Zeus tomó la forma de un cisne; según otra, el músico Orfeo fue convertido en cisne y colocado junto a su lira, la constelación de Lyra. La estrella de su cola, Deneb, es una de las más luminosas que se ven a simple vista. También se la conoce como la Cruz del Norte."],
+  ["This small half-circle of stars is the crown of Ariadne, the princess of Crete who helped Theseus escape the Minotaur's labyrinth with a ball of thread. When she married the god Dionysus, he threw her crown into the sky so that it would shine forever. Its brightest star is called Gemma, the jewel.",
+   "Ce petit demi-cercle d'étoiles est la couronne d'Ariane, la princesse crétoise qui aida Thésée à sortir du labyrinthe du Minotaure grâce à une pelote de fil. Quand elle épousa le dieu Dionysos, il lança sa couronne dans le ciel pour qu'elle brille à jamais. Son étoile la plus brillante s'appelle Gemma, « le joyau ».",
+   "Este pequeño semicírculo de estrellas es la corona de Ariadna, la princesa de Creta que ayudó a Teseo a salir del laberinto del Minotauro con un ovillo de hilo. Cuando se casó con el dios Dioniso, él lanzó su corona al cielo para que brillara para siempre. Su estrella más brillante se llama Gemma, «la joya»."],
+  ["Leo is the Nemean lion, whose skin no weapon could pierce. Defeating it was the first of the twelve labours of Hercules, who then wore its skin as armour. Its head looks like a backwards question mark, with the bright star Regulus, 'the little king', at the bottom. Every November, the Leonid shooting stars seem to rain from this part of the sky.",
+   "Le Lion est le lion de Némée, dont aucune arme ne pouvait percer la peau. Le vaincre fut le premier des douze travaux d'Hercule, qui porta ensuite sa peau comme une armure. Sa tête ressemble à un point d'interrogation à l'envers, avec en bas la brillante Régulus, « le petit roi ». Chaque mois de novembre, les étoiles filantes des Léonides semblent pleuvoir de cette région du ciel.",
+   "Leo es el león de Nemea, cuya piel ninguna arma podía atravesar. Vencerlo fue el primero de los doce trabajos de Hércules, que después llevó su piel como armadura. Su cabeza parece un signo de interrogación al revés, con la brillante Régulo, «el pequeño rey», en la parte inferior. Cada noviembre, las estrellas fugaces Leónidas parecen llover desde esta zona del cielo."],
+  ["At the tip of the Little Dipper's handle shines Polaris, the North Star. It sits almost exactly above the North Pole, so it barely moves while the whole sky turns around it, and sailors used it for centuries to find north. In Greek myth, these stars are Arcas, Callisto's son, placed in the sky next to his mother, the Great Bear.",
+   "Au bout de la queue de la Petite Ourse brille l'étoile Polaire. Elle se trouve presque exactement au-dessus du pôle Nord : elle bouge à peine tandis que tout le ciel tourne autour d'elle, et les marins s'en sont servis pendant des siècles pour trouver le nord. Dans la mythologie grecque, ces étoiles sont Arcas, le fils de Callisto, placé dans le ciel à côté de sa mère, la Grande Ourse.",
+   "En el extremo de la cola de la Osa Menor brilla la Estrella Polar. Está casi exactamente sobre el Polo Norte, así que apenas se mueve mientras todo el cielo gira a su alrededor, y los marineros la usaron durante siglos para encontrar el norte. En la mitología griega, estas estrellas son Arcas, el hijo de Calisto, colocado en el cielo junto a su madre, la Osa Mayor."],
+  ["Taurus is the beautiful white bull that Zeus became to carry the princess Europa across the sea to Crete; our continent is named after her. The bull's red eye is the star Aldebaran, 'the follower', because it seems to chase the Pleiades across the sky. In 1054, astronomers in China saw a star explode here; its remains are the Crab Nebula.",
+   "Le Taureau est le magnifique taureau blanc dont Zeus prit l'apparence pour emmener la princesse Europe en Crète, à travers la mer ; notre continent porte son nom. L'œil rouge du taureau est l'étoile Aldébaran, « celle qui suit », car elle semble poursuivre les Pléiades dans le ciel. En 1054, des astronomes chinois virent une étoile exploser à cet endroit : ses restes forment la nébuleuse du Crabe.",
+   "Tauro es el hermoso toro blanco en el que se convirtió Zeus para llevar a la princesa Europa a través del mar hasta Creta; nuestro continente lleva su nombre. El ojo rojo del toro es la estrella Aldebarán, «la que sigue», porque parece perseguir a las Pléyades por el cielo. En 1054, astrónomos chinos vieron estallar una estrella en este lugar: sus restos forman la nebulosa del Cangrejo."],
+  ["Aquila is the eagle that carried Zeus's thunderbolts. Its brightest star, Altair, spins so fast that it turns once in less than ten hours, compared with almost a month for our Sun. In an old East Asian legend, Altair is a cowherd separated from his love, the weaver Vega, by the river of the Milky Way. They may meet only once a year, on the seventh day of the seventh month, a day still celebrated in China and Japan.",
+   "L'Aigle est l'oiseau qui portait les éclairs de Zeus. Son étoile la plus brillante, Altaïr, tourne si vite sur elle-même qu'elle fait un tour en moins de dix heures, contre près d'un mois pour notre Soleil. Selon une vieille légende d'Asie de l'Est, Altaïr est un jeune vacher séparé de sa bien-aimée, la tisserande Véga, par la rivière de la Voie lactée. Ils ne peuvent se retrouver qu'une fois par an, le septième jour du septième mois, une fête encore célébrée en Chine et au Japon.",
+   "Águila es el ave que llevaba los rayos de Zeus. Su estrella más brillante, Altair, gira tan rápido que da una vuelta en menos de diez horas, frente a casi un mes de nuestro Sol. Según una antigua leyenda de Asia oriental, Altair es un pastor separado de su amada, la tejedora Vega, por el río de la Vía Láctea. Solo pueden encontrarse una vez al año, el séptimo día del séptimo mes, una fiesta que todavía se celebra en China y Japón."],
+  ["Boötes is the herdsman who drives the Great Bear around the North Pole, night after night. His brightest star, Arcturus, means 'guardian of the bear'. It is the brightest star in the northern half of the sky and easy to find: follow the curve of the Big Dipper's handle. In 1933, its light was used to switch on the lights of the Chicago World's Fair.",
+   "Le Bouvier est le gardien de troupeaux qui fait tourner la Grande Ourse autour du pôle Nord, nuit après nuit. Son étoile la plus brillante, Arcturus, signifie « le gardien de l'ourse ». C'est l'étoile la plus brillante de la moitié nord du ciel, et elle est facile à trouver : suivez la courbe de la queue de la Grande Ourse. En 1933, sa lumière servit à allumer les lumières de l'Exposition universelle de Chicago.",
+   "El Boyero es el pastor que hace girar a la Osa Mayor alrededor del Polo Norte, noche tras noche. Su estrella más brillante, Arturo, significa «el guardián de la osa». Es la estrella más brillante de la mitad norte del cielo y es fácil de encontrar: sigue la curva de la cola de la Osa Mayor. En 1933, su luz se usó para encender las luces de la Exposición Universal de Chicago."],
+  ["Pegasus is the winged horse born when the hero Perseus defeated Medusa. The hero Bellerophon rode him to defeat the Chimera, a fire-breathing monster, and Zeus then gave him a place among the stars. Look for the Great Square, four stars forming his body. In 1995, two Swiss astronomers discovered here the first planet ever found orbiting a star like our Sun, a discovery that later won the Nobel Prize.",
+   "Pégase est le cheval ailé né lorsque le héros Persée vainquit Méduse. Le héros Bellérophon le monta pour vaincre la Chimère, un monstre qui crachait du feu, puis Zeus lui offrit une place parmi les étoiles. Cherchez le Grand Carré, quatre étoiles qui forment son corps. En 1995, deux astronomes suisses y découvrirent la première planète jamais trouvée autour d'une étoile semblable au Soleil, une découverte récompensée plus tard par le prix Nobel.",
+   "Pegaso es el caballo alado que nació cuando el héroe Perseo venció a Medusa. El héroe Belerofonte lo montó para derrotar a la Quimera, un monstruo que escupía fuego, y luego Zeus le dio un lugar entre las estrellas. Busca el Gran Cuadrado, cuatro estrellas que forman su cuerpo. En 1995, dos astrónomos suizos descubrieron aquí el primer planeta hallado alrededor de una estrella parecida al Sol, un descubrimiento que más tarde recibió el Premio Nobel."],
+  ["Canis Major is one of Orion's hunting dogs, faithfully following its master across the sky. In its chest shines Sirius, the brightest star in the night sky. The ancient Egyptians watched for Sirius to reappear at dawn each summer, because it announced the yearly flooding of the Nile. The hot 'dog days' of summer are named after it.",
+   "Le Grand Chien est l'un des chiens de chasse d'Orion, qui suit fidèlement son maître dans le ciel. Sur sa poitrine brille Sirius, l'étoile la plus brillante du ciel nocturne. Les anciens Égyptiens guettaient son retour à l'aube chaque été, car il annonçait la crue du Nil. Notre mot « canicule » vient d'ailleurs du latin « canicula », « petite chienne », l'un des noms de Sirius.",
+   "El Can Mayor es uno de los perros de caza de Orión, que sigue fielmente a su amo por el cielo. En su pecho brilla Sirio, la estrella más brillante del cielo nocturno. Los antiguos egipcios esperaban verla reaparecer al amanecer cada verano, porque anunciaba la crecida del Nilo. La palabra «canícula» viene del latín «canicula», «perrita», uno de los nombres de Sirio."],
+  ["Gemini are the twins Castor and Pollux. Pollux was immortal, Castor was not; when Castor died, Pollux asked to share his immortality with his brother, so Zeus placed them side by side in the sky. Sailors saw them as protectors of ships at sea. Every December, the Geminids, one of the richest meteor showers of the year, seem to come from here.",
+   "Les Gémeaux sont les jumeaux Castor et Pollux. Pollux était immortel, Castor non ; quand Castor mourut, Pollux demanda à partager son immortalité avec son frère, et Zeus les plaça côte à côte dans le ciel. Les marins voyaient en eux les protecteurs des navires. Chaque mois de décembre, les Géminides, l'une des plus belles pluies d'étoiles filantes de l'année, semblent venir d'ici.",
+   "Géminis son los gemelos Cástor y Pólux. Pólux era inmortal y Cástor no; cuando Cástor murió, Pólux pidió compartir su inmortalidad con su hermano, y Zeus los colocó juntos en el cielo. Los marineros los veían como protectores de los barcos. Cada diciembre, las Gemínidas, una de las lluvias de estrellas más intensas del año, parecen salir de aquí."],
+  ["Scorpius is the scorpion that stung Orion, which is why the two are never seen in the sky at the same time. Its heart is Antares, a red supergiant whose name means 'rival of Mars' because of its colour. It is so huge that, in place of our Sun, it would reach beyond the orbit of Mars. In summer, look low in the south for its long curved tail.",
+   "Le Scorpion est celui qui piqua Orion : c'est pourquoi on ne les voit jamais ensemble dans le ciel. Son cœur est Antarès, une supergéante rouge dont le nom signifie « rival de Mars » à cause de sa couleur. Elle est si énorme qu'à la place de notre Soleil, elle dépasserait l'orbite de Mars. En été, cherchez sa longue queue recourbée, basse vers le sud.",
+   "Escorpio es el escorpión que picó a Orión, por eso nunca se ven los dos a la vez en el cielo. Su corazón es Antares, una supergigante roja cuyo nombre significa «rival de Marte» por su color. Es tan enorme que, en el lugar de nuestro Sol, llegaría más allá de la órbita de Marte. En verano, busca su larga cola curvada, baja hacia el sur."],
+  ["Lyra is the lyre of Orpheus, whose music could charm animals, trees and even stones; after his death, it was placed among the stars. Its brightest star, Vega, is one of the brightest in our sky. Because the Earth slowly wobbles like a spinning top, Vega was the North Star about 12,000 years ago and will be again in the distant future. In 1850, it became the first star, after the Sun, ever to be photographed.",
+   "La Lyre est celle d'Orphée, dont la musique charmait les animaux, les arbres et même les pierres ; après sa mort, elle fut placée parmi les étoiles. Son étoile la plus brillante, Véga, est l'une des plus lumineuses de notre ciel. Comme la Terre oscille lentement à la manière d'une toupie, Véga était l'étoile polaire il y a environ 12 000 ans, et le redeviendra dans un lointain avenir. En 1850, elle fut la première étoile, après le Soleil, à être photographiée.",
+   "Lira es la lira de Orfeo, cuya música encantaba a los animales, los árboles e incluso las piedras; tras su muerte, fue colocada entre las estrellas. Su estrella más brillante, Vega, es una de las más luminosas de nuestro cielo. Como la Tierra se balancea lentamente como una peonza, Vega fue la Estrella Polar hace unos 12 000 años y volverá a serlo en un futuro lejano. En 1850 se convirtió en la primera estrella, después del Sol, en ser fotografiada."],
+  ["Hercules is the greatest hero of Greek myth, famous for his twelve labours; the first was defeating the Nemean lion, now the constellation Leo. In the sky he appears upside down, kneeling. Four of his stars form a shape called the Keystone. On one side of it lies a ball of several hundred thousand stars, the Great Cluster in Hercules: in 1974, a radio message from Earth was sent towards it.",
+   "Hercule est le plus grand héros de la mythologie grecque, célèbre pour ses douze travaux ; le premier fut de vaincre le lion de Némée, devenu la constellation du Lion. Dans le ciel, il apparaît à l'envers, un genou à terre. Quatre de ses étoiles forment une figure appelée la Clé de voûte. Sur l'un de ses côtés se trouve une boule de plusieurs centaines de milliers d'étoiles, le Grand amas d'Hercule : en 1974, un message radio venu de la Terre a été envoyé dans sa direction.",
+   "Hércules es el mayor héroe de la mitología griega, famoso por sus doce trabajos; el primero fue vencer al león de Nemea, hoy la constelación de Leo. En el cielo aparece boca abajo, con una rodilla en el suelo. Cuatro de sus estrellas forman una figura llamada la Piedra angular. A uno de sus lados hay una bola de varios cientos de miles de estrellas, el Gran Cúmulo de Hércules: en 1974 se envió hacia ella un mensaje de radio desde la Tierra."]
+];
+function showStory(k){
+  const c = SKY[k];
+  $("#intro").innerHTML = `<div class="ibox story"><div class="stsky">${skySvg(k,[3,3,3,3,3,3,3],-1)}</div>
+  <h2>${L(c.n)}</h2><p>${L(SKY_STORY[k])}</p><button class="primary" onclick="closeStory()">${t("backSky")}</button></div>`;
+  $("#intro").hidden = false;
+}
+function closeStory(){ if(!$("#intro .story")) return; $("#intro").hidden = true; $("#intro").innerHTML = ""; }
+$("#intro").addEventListener("click", e => { if(e.target.id==="intro") closeStory(); });
+/* Plant information shown with the (i) button in the Garden, same order as PLANTS. Texts: [EN, FR, ES] */
+const PLANT_INFO = [
+  ["Ferns are among the oldest plants on Earth: they were already growing more than 350 million years ago, long before the dinosaurs. They have no flowers and no seeds; they spread with tiny spores hidden under their leaves. They love shade and moisture, in forests and along streams, on every continent except Antarctica.",
+   "Les fougères comptent parmi les plus anciennes plantes de la Terre : elles poussaient déjà il y a plus de 350 millions d'années, bien avant les dinosaures. Elles n'ont ni fleurs ni graines ; elles se reproduisent grâce à de minuscules spores cachées sous leurs feuilles. Elles aiment l'ombre et l'humidité, dans les forêts et au bord des ruisseaux, sur tous les continents sauf l'Antarctique.",
+   "Los helechos están entre las plantas más antiguas de la Tierra: ya crecían hace más de 350 millones de años, mucho antes que los dinosaurios. No tienen flores ni semillas; se reproducen con diminutas esporas escondidas bajo sus hojas. Les encantan la sombra y la humedad, en bosques y junto a arroyos, en todos los continentes salvo la Antártida."],
+  ["Cacti come from the Americas, mostly from hot, dry deserts. Their spines are in fact leaves: being so thin, they lose very little water, and the thick stem stores water for months. The giant saguaro of Arizona can live more than 150 years and grow over 12 metres tall.",
+   "Les cactus viennent d'Amérique, surtout des déserts chauds et secs. Leurs épines sont en fait des feuilles : très fines, elles perdent très peu d'eau, et la tige épaisse en stocke pendant des mois. Le saguaro géant d'Arizona peut vivre plus de 150 ans et dépasser 12 mètres de haut.",
+   "Los cactus vienen de América, sobre todo de desiertos cálidos y secos. Sus espinas son en realidad hojas: al ser tan finas, pierden muy poca agua, y el tallo grueso la almacena durante meses. El saguaro gigante de Arizona puede vivir más de 150 años y superar los 12 metros de altura."],
+  ["Sunflowers come from North America, where Native Americans grew them more than 4,000 years ago. Young sunflowers follow the sun from east to west during the day. What looks like one big flower is actually made of up to 2,000 tiny flowers, each of which becomes a seed. They need full sun and warm summers.",
+   "Le tournesol vient d'Amérique du Nord, où les Amérindiens le cultivaient il y a plus de 4 000 ans. Les jeunes tournesols suivent le soleil d'est en ouest au cours de la journée. Ce qui ressemble à une grande fleur est en réalité composé de jusqu'à 2 000 petites fleurs, qui deviennent chacune une graine. Il lui faut du plein soleil et des étés chauds.",
+   "El girasol viene de América del Norte, donde los pueblos nativos ya lo cultivaban hace más de 4000 años. Los girasoles jóvenes siguen al sol de este a oeste durante el día. Lo que parece una gran flor está formado en realidad por hasta 2000 florecillas, y cada una se convierte en una semilla. Necesita pleno sol y veranos cálidos."],
+  ["Oaks grow in forests across the Northern Hemisphere, from Europe to North America and Asia. They can live for several centuries, and some are more than a thousand years old. A single old oak is home to hundreds of species of insects, birds, mosses and mushrooms. Each autumn it drops acorns, which jays and squirrels bury and sometimes forget, planting new oaks.",
+   "Les chênes poussent dans les forêts de tout l'hémisphère Nord, de l'Europe à l'Amérique du Nord et à l'Asie. Ils peuvent vivre plusieurs siècles, et certains ont plus de mille ans. Un seul vieux chêne abrite des centaines d'espèces d'insectes, d'oiseaux, de mousses et de champignons. Chaque automne, il laisse tomber ses glands, que geais et écureuils enterrent et parfois oublient, plantant ainsi de nouveaux chênes.",
+   "Los robles crecen en bosques de todo el hemisferio norte, de Europa a América del Norte y Asia. Pueden vivir varios siglos, y algunos tienen más de mil años. Un solo roble viejo alberga cientos de especies de insectos, aves, musgos y hongos. Cada otoño deja caer sus bellotas, que los arrendajos y las ardillas entierran y a veces olvidan, plantando así nuevos robles."],
+  ["Lavender comes from the Mediterranean, where it grows on sunny, dry and stony hillsides. Its name comes from the Latin 'lavare', to wash, because the Romans added it to their baths. In early summer, the fields of Provence turn purple and fill with the buzzing of bees.",
+   "La lavande vient du bassin méditerranéen, où elle pousse sur des collines ensoleillées, sèches et caillouteuses. Son nom vient du latin « lavare », laver, car les Romains en parfumaient leurs bains. Au début de l'été, les champs de Provence deviennent violets et bourdonnent d'abeilles.",
+   "La lavanda viene del Mediterráneo, donde crece en colinas soleadas, secas y pedregosas. Su nombre viene del latín «lavare», lavar, porque los romanos la añadían a sus baños. A principios del verano, los campos de la Provenza se vuelven morados y se llenan del zumbido de las abejas."],
+  ["Monstera comes from the tropical rainforests of Central America, from southern Mexico to Panama. In the wild it climbs up tree trunks using its aerial roots. The holes in its large leaves may help sunlight reach the lower leaves and let heavy rain and wind pass through. That's why it's nicknamed the Swiss cheese plant.",
+   "Le monstera vient des forêts tropicales d'Amérique centrale, du sud du Mexique au Panama. Dans la nature, il grimpe le long des troncs grâce à ses racines aériennes. Les trous de ses grandes feuilles aideraient la lumière à atteindre les feuilles du dessous et laisseraient passer la pluie et le vent. D'où son surnom de « plante gruyère ».",
+   "La monstera viene de las selvas tropicales de América Central, del sur de México a Panamá. En la naturaleza trepa por los troncos gracias a sus raíces aéreas. Los agujeros de sus grandes hojas ayudarían a que la luz llegue a las hojas de abajo y dejarían pasar la lluvia y el viento. Por eso la llaman «costilla de Adán»."],
+  ["Bamboo is actually a giant grass. It grows in warm and humid regions of Asia, Africa and the Americas. Some species are among the fastest-growing plants in the world, gaining almost a metre in a single day. Giant pandas eat almost nothing else, up to 12 hours a day.",
+   "Le bambou est en réalité une herbe géante. Il pousse dans les régions chaudes et humides d'Asie, d'Afrique et d'Amérique. Certaines espèces comptent parmi les plantes qui poussent le plus vite au monde : presque un mètre en une seule journée. Les pandas géants ne mangent presque que ça, jusqu'à 12 heures par jour.",
+   "El bambú es en realidad una hierba gigante. Crece en regiones cálidas y húmedas de Asia, África y América. Algunas especies están entre las plantas que más rápido crecen del mundo: casi un metro en un solo día. Los pandas gigantes casi no comen otra cosa, hasta 12 horas al día."],
+  ["Cherry trees grow in temperate regions with cold winters, in Europe and Asia. In Japan, the blossoming of the ornamental cherry trees, called sakura, is a national celebration: people picnic under the flowers, a tradition called hanami. The blossoms only last a week or two, a reminder to enjoy each moment.",
+   "Les cerisiers poussent dans les régions tempérées aux hivers froids, en Europe et en Asie. Au Japon, la floraison des cerisiers d'ornement, les sakura, est une fête nationale : on pique-nique sous les fleurs, une tradition appelée hanami. Les fleurs ne durent qu'une à deux semaines, comme un rappel de profiter de chaque instant.",
+   "Los cerezos crecen en regiones templadas con inviernos fríos, en Europa y Asia. En Japón, la floración de los cerezos ornamentales, los sakura, es una fiesta nacional: la gente hace pícnics bajo las flores, una tradición llamada hanami. Las flores solo duran una o dos semanas, como un recordatorio de disfrutar cada momento."],
+  ["Tulips first grew wild in the mountains of Central Asia. They were treasured in the Ottoman Empire and reached the Netherlands in the 16th century. In the 1630s, during 'tulip mania', a single rare bulb could cost as much as a house. Tulips need a cold winter to bloom in spring.",
+   "Les tulipes poussaient d'abord à l'état sauvage dans les montagnes d'Asie centrale. Très appréciées dans l'Empire ottoman, elles arrivèrent aux Pays-Bas au XVIe siècle. Dans les années 1630, pendant la « tulipomanie », un seul bulbe rare pouvait coûter autant qu'une maison. Elles ont besoin d'un hiver froid pour fleurir au printemps.",
+   "Los tulipanes crecían primero de forma silvestre en las montañas de Asia central. Muy apreciados en el Imperio otomano, llegaron a los Países Bajos en el siglo XVI. En la década de 1630, durante la «tulipomanía», un solo bulbo raro podía costar tanto como una casa. Necesitan un invierno frío para florecer en primavera."],
+  ["Pines grow mostly in the Northern Hemisphere, from cold mountains to sandy coastlines. Their needles stay green all year round. Some are among the oldest living things on Earth: a bristlecone pine in California is more than 4,800 years old. Pine cones close when it's damp and open in dry weather to release their seeds.",
+   "Les pins poussent surtout dans l'hémisphère Nord, des montagnes froides aux côtes sablonneuses. Leurs aiguilles restent vertes toute l'année. Certains comptent parmi les êtres vivants les plus vieux de la Terre : un pin de Californie a plus de 4 800 ans. Les pommes de pin se ferment par temps humide et s'ouvrent par temps sec pour libérer leurs graines.",
+   "Los pinos crecen sobre todo en el hemisferio norte, de las montañas frías a las costas arenosas. Sus agujas se mantienen verdes todo el año. Algunos están entre los seres vivos más antiguos de la Tierra: un pino de California tiene más de 4800 años. Las piñas se cierran cuando hay humedad y se abren con tiempo seco para soltar sus semillas."],
+  ["Succulents like this one, an echeveria, come from the dry, rocky slopes of Mexico and Central America. Their thick, fleshy leaves store water, so they can survive long droughts. A single leaf that falls to the ground can grow roots and become a whole new plant.",
+   "Les plantes grasses comme celle-ci, une échévéria, viennent des pentes sèches et rocailleuses du Mexique et d'Amérique centrale. Leurs feuilles épaisses et charnues stockent l'eau, ce qui leur permet de survivre à de longues sécheresses. Une seule feuille tombée au sol peut faire des racines et devenir une nouvelle plante.",
+   "Las suculentas como esta, una echeveria, vienen de las laderas secas y rocosas de México y América Central. Sus hojas gruesas y carnosas almacenan agua, lo que les permite sobrevivir a largas sequías. Una sola hoja caída al suelo puede echar raíces y convertirse en una planta nueva."],
+  ["Palm trees grow in tropical and warm regions all around the world. Coconuts can float across the ocean for months and still sprout on a faraway beach, which is how coconut palms spread to so many islands. Unlike other trees, a palm's trunk does not get wider with age.",
+   "Les palmiers poussent dans les régions tropicales et chaudes du monde entier. Une noix de coco peut flotter sur l'océan pendant des mois et germer quand même sur une plage lointaine : c'est ainsi que les cocotiers ont gagné tant d'îles. Contrairement aux autres arbres, le tronc d'un palmier ne s'élargit pas avec l'âge.",
+   "Las palmeras crecen en regiones tropicales y cálidas de todo el mundo. Un coco puede flotar en el océano durante meses y aun así germinar en una playa lejana: así llegaron los cocoteros a tantas islas. A diferencia de otros árboles, el tronco de una palmera no se ensancha con la edad."],
+  ["Wild roses grow across the Northern Hemisphere, and fossils show they existed millions of years ago. People have grown roses for thousands of years, from ancient China to Persia and Rome, and there are now thousands of varieties. After the flowers come rose hips, small fruits very rich in vitamin C.",
+   "Les rosiers sauvages poussent dans tout l'hémisphère Nord, et des fossiles montrent qu'ils existaient déjà il y a des millions d'années. On cultive les roses depuis des millénaires, de la Chine ancienne à la Perse et à Rome, et il en existe aujourd'hui des milliers de variétés. Après les fleurs viennent les cynorhodons, de petits fruits très riches en vitamine C.",
+   "Los rosales silvestres crecen en todo el hemisferio norte, y los fósiles muestran que ya existían hace millones de años. Las rosas se cultivan desde hace miles de años, de la antigua China a Persia y Roma, y hoy existen miles de variedades. Tras las flores llegan los escaramujos, pequeños frutos muy ricos en vitamina C."],
+  ["Orchids form one of the largest families of flowering plants, with more than 25,000 species on every continent except Antarctica. Many tropical orchids grow high on tree branches, with their roots hanging in the air. Vanilla comes from an orchid. Their seeds are as fine as dust and need the help of a tiny fungus to sprout.",
+   "Les orchidées forment l'une des plus grandes familles de plantes à fleurs, avec plus de 25 000 espèces sur tous les continents sauf l'Antarctique. Beaucoup d'orchidées tropicales poussent en hauteur sur les branches des arbres, les racines dans l'air. La vanille vient d'une orchidée. Leurs graines, fines comme de la poussière, ont besoin d'un minuscule champignon pour germer.",
+   "Las orquídeas forman una de las familias de plantas con flores más grandes, con más de 25 000 especies en todos los continentes salvo la Antártida. Muchas orquídeas tropicales crecen en lo alto de las ramas, con las raíces al aire. La vainilla viene de una orquídea. Sus semillas, finas como el polvo, necesitan la ayuda de un diminuto hongo para germinar."],
+  ["Hydrangeas come from Asia, especially Japan and China, and from the Americas. They like partial shade and moist soil, and you often see them in the gardens of Brittany. In some hydrangeas, the soil decides the colour: acidic soil gives blue flowers, chalky soil gives pink ones.",
+   "Les hortensias viennent d'Asie, surtout du Japon et de Chine, ainsi que d'Amérique. Ils aiment la mi-ombre et les sols humides, et on les voit souvent dans les jardins bretons. Chez certains hortensias, c'est le sol qui décide de la couleur : un sol acide donne des fleurs bleues, un sol calcaire des fleurs roses.",
+   "Las hortensias vienen de Asia, sobre todo de Japón y China, y también de América. Les gustan la semisombra y los suelos húmedos, y se ven a menudo en los jardines de Galicia y del norte de España. En algunas hortensias, el suelo decide el color: un suelo ácido da flores azules y uno calizo, flores rosas."],
+  ["The olive tree comes from the Mediterranean, where people have grown it for more than 6,000 years. It loves hot, dry summers, mild winters and even poor, stony soil. Olive trees can live for centuries, and some are thought to be more than 2,000 years old. Since ancient times, the olive branch has been a symbol of peace.",
+   "L'olivier vient du bassin méditerranéen, où on le cultive depuis plus de 6 000 ans. Il aime les étés chauds et secs, les hivers doux et même les sols pauvres et caillouteux. Les oliviers peuvent vivre des siècles, et certains auraient plus de 2 000 ans. Depuis l'Antiquité, le rameau d'olivier est un symbole de paix.",
+   "El olivo viene del Mediterráneo, donde se cultiva desde hace más de 6000 años. Le gustan los veranos cálidos y secos, los inviernos suaves e incluso los suelos pobres y pedregosos. Los olivos pueden vivir siglos, y se cree que algunos tienen más de 2000 años. Desde la Antigüedad, la rama de olivo es un símbolo de paz."]
+];
+function showPlant(k){
+  const p = PLANTS[k];
+  $("#intro").innerHTML = `<div class="ibox story"><div class="stplant">${plantSvg(k,7,null,null)}</div>
+  <h2>${L(p.n)}</h2><p>${L(PLANT_INFO[k])}</p><button class="primary" onclick="closeStory()">${t("backGarden")}</button></div>`;
+  $("#intro").hidden = false;
+}
+const STYLES = ["original","garden","night"];
+const sty = () => STYLES.includes(cfg.style) ? cfg.style : "original";
+
+/* ---- weeks (Monday to Sunday, Paris time) ---- */
+const iso = d => d.toISOString().slice(0,10);
+function weekStart(ds){ const d = new Date(ds+"T12:00:00Z"); d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7)); return iso(d); }
+/* All weeks from the first session to this week; k = 0 for the first week */
+function weeks(){
+  const now = weekStart(day(new Date())), first = log.length ? weekStart(log.map(l=>l.date).sort()[0]) : now, out = [];
+  const dates = new Set(log.map(l=>l.date));
+  for(let d = new Date(first+"T12:00:00Z"), k = 0; iso(d) <= now; d.setUTCDate(d.getUTCDate()+7), k++){
+    const days = []; for(let i=0;i<7;i++){ const x = new Date(d); x.setUTCDate(x.getUTCDate()+i); days.push(dates.has(iso(x))); }
+    const lv = days.map((on,i)=>{ if(!on) return 0; const x = new Date(d); x.setUTCDate(x.getUTCDate()+i); const ds = iso(x);
+      return new Set(log.filter(l=>l.date===ds).map(l=>(SESSIONS.find(s=>s.id===l.session)||{}).type).filter(Boolean)).size; });
+    out.push({k, start:iso(d), days, lv, n:days.filter(Boolean).length});
+  }
+  return out;
+}
+
+/* ---- small drawing helpers ---- */
+const f1 = v => v.toFixed(1);
+/* Today's flowers: same colours for every plant (one per session type), but each plant has its own flower shape */
+const ring = (n, fn) => Array.from({length:n}, (_,k)=>fn(k*360/n, k)).join("");
+const P = (a, d) => { const q = a*Math.PI/180; return [Math.sin(q)*d, -Math.cos(q)*d]; };
+const FLOWERS = {
+  round: (r,C) => ring(5, a=>{ const [x,y]=P(a,r); return `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r*.95)}" fill="${C}"/>`; }) + `<circle r="${f1(r*.62)}" fill="#F0B429"/>`,
+  daisy: (r,C) => ring(10, a=>{ const [x,y]=P(a,r*.8); return `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(r*.3)}" ry="${f1(r*.72)}" transform="rotate(${a} ${f1(x)} ${f1(y)})" fill="${C}"/>`; }) + `<circle r="${f1(r*.48)}" fill="#F0B429"/>`,
+  star: (r,C) => `<path d="M${Array.from({length:12},(_,k)=>{ const [x,y]=P(k*30, k%2?r*.55:r*1.45); return f1(x)+" "+f1(y); }).join("L")}Z" fill="${C}" stroke="${C}" stroke-width="2" stroke-linejoin="round"/><circle r="${f1(r*.38)}" fill="#FFF3C4"/>`,
+  sunny: (r,C) => ring(12, a=>{ const [x,y]=P(a,r*.98); return `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(r*.3)}" ry="${f1(r*.6)}" transform="rotate(${a} ${f1(x)} ${f1(y)})" fill="${C}"/>`; }) + `<circle r="${f1(r*.66)}" fill="#6B4226"/><circle r="${f1(r*.36)}" fill="#4E2F1A"/>`,
+  spike: (r,C) => `<path d="M0 ${f1(r*.9)}V${f1(-r*1.6)}" stroke="var(--stem)" stroke-width="2"/>` + [0,1,2,3,4,5].map(k=>`<ellipse cx="${f1(k%2?r*.28:-r*.28)}" cy="${f1(r*.5-k*r*.42)}" rx="${f1(r*.42-k*.02*r)}" ry="${f1(r*.5)}" fill="${C}"/>`).join(""),
+  spathe: (r,C) => `<path d="M0 ${f1(r*.7)}C${f1(-r*1.3)} 0 ${f1(-r*1)} ${f1(-r*1.5)} 0 ${f1(-r*1.7)}C${f1(r*1)} ${f1(-r*1.5)} ${f1(r*1.3)} 0 0 ${f1(r*.7)}Z" fill="${C}"/><rect x="${f1(-r*.18)}" y="${f1(-r*1.05)}" width="${f1(r*.36)}" height="${f1(r*1.15)}" rx="${f1(r*.18)}" fill="#F0B429" transform="rotate(12)"/>`,
+  cross: (r,C) => ring(4, a=>{ const [x,y]=P(a+45,r*.82); return `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r*.78)}" fill="${C}"/>`; }) + `<circle r="${f1(r*.42)}" fill="#FFF3C4"/>`,
+  cluster: (r,C) => [[-.75,.35],[.75,.35],[0,-.7]].map(([dx,dy])=>`<g transform="translate(${f1(dx*r)} ${f1(dy*r)})">${ring(5, a=>{ const [x,y]=P(a,r*.42); return `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r*.4)}" fill="${C}"/>`; })}<circle r="${f1(r*.2)}" fill="#FFF3C4"/></g>`).join(""),
+  tulip: (r,C) => `<path d="M${f1(-r)} ${f1(-r*.9)}L${f1(-r*.45)} ${f1(-r*.2)}L0 ${f1(-r*1.1)}L${f1(r*.45)} ${f1(-r*.2)}L${f1(r)} ${f1(-r*.9)}Q${f1(r*1.05)} ${f1(r*.9)} 0 ${f1(r*.85)}Q${f1(-r*1.05)} ${f1(r*.9)} ${f1(-r)} ${f1(-r*.9)}Z" fill="${C}"/>`,
+  bell: (r,C) => [[-.62,0],[.62,-.25]].map(([dx,dy])=>`<g transform="translate(${f1(dx*r)} ${f1(dy*r)})"><path d="M${f1(-r*.62)} ${f1(r*.55)}Q${f1(-r*.7)} ${f1(-r*.75)} 0 ${f1(-r*.8)}Q${f1(r*.7)} ${f1(-r*.75)} ${f1(r*.62)} ${f1(r*.55)}Q${f1(r*.3)} ${f1(r*.3)} 0 ${f1(r*.6)}Q${f1(-r*.3)} ${f1(r*.3)} ${f1(-r*.62)} ${f1(r*.55)}Z" fill="${C}"/><circle cy="${f1(r*.72)}" r="${f1(r*.14)}" fill="#F0B429"/></g>`).join(""),
+  burst: (r,C) => ring(14, a=>{ const [x0,y0]=P(a,r*.3), [x1,y1]=P(a,r*1.35); return `<path d="M${f1(x0)} ${f1(y0)}L${f1(x1)} ${f1(y1)}" stroke="${C}" stroke-width="${f1(r*.26)}" stroke-linecap="round"/>`; }) + `<circle r="${f1(r*.4)}" fill="#F0B429"/>`,
+  hibiscus: (r,C) => ring(5, a=>{ const [x,y]=P(a,r*.78); return `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r*.86)}" fill="${C}" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>`; }) + `<circle r="${f1(r*.3)}" fill="#fff" fill-opacity=".5"/><path d="M0 0L${f1(r*.8)} ${f1(-r*1.05)}" stroke="#F0B429" stroke-width="2" stroke-linecap="round"/><circle cx="${f1(r*.85)}" cy="${f1(-r*1.1)}" r="${f1(r*.2)}" fill="#F0B429"/>`,
+  rose: (r,C) => `<circle r="${f1(r*1.05)}" fill="${C}"/><path d="M${f1(-r*.55)} ${f1(r*.1)}A${f1(r*.6)} ${f1(r*.6)} 0 1 1 ${f1(r*.5)} ${f1(r*.25)}M${f1(-r*.25)} ${f1(-r*.05)}A${f1(r*.3)} ${f1(r*.3)} 0 1 1 ${f1(r*.25)} ${f1(r*.05)}" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="${f1(r*.16)}" stroke-linecap="round"/>`,
+  orchid: (r,C) => [0,120,240].map(a=>`<ellipse cx="0" cy="${f1(-r*.8)}" rx="${f1(r*.38)}" ry="${f1(r*.8)}" transform="rotate(${a})" fill="${C}" fill-opacity=".75"/>`).join("") + [60,300].map(a=>`<ellipse cx="0" cy="${f1(-r*.75)}" rx="${f1(r*.55)}" ry="${f1(r*.7)}" transform="rotate(${a})" fill="${C}"/>`).join("") + `<path d="M${f1(-r*.4)} ${f1(r*.15)}Q0 ${f1(r*1.2)} ${f1(r*.4)} ${f1(r*.15)}Z" fill="#F0B429"/><circle r="${f1(r*.2)}" fill="#fff"/>`,
+  pompom: (r,C) => [[0,0],[-.62,-.3],[.62,-.3],[-.35,.5],[.35,.5],[0,-.7],[-.7,.25],[.7,.25]].map(([dx,dy])=>`<g transform="translate(${f1(dx*r)} ${f1(dy*r)})">${ring(4, a=>{ const [x,y]=P(a+45,r*.2); return `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r*.2)}" fill="${C}"/>`; })}</g>`).join(""),
+  star4: (r,C) => `<path d="M0 ${f1(-r*1.3)}Q${f1(r*.2)} ${f1(-r*.2)} ${f1(r*1.3)} 0Q${f1(r*.2)} ${f1(r*.2)} 0 ${f1(r*1.3)}Q${f1(-r*.2)} ${f1(r*.2)} ${f1(-r*1.3)} 0Q${f1(-r*.2)} ${f1(-r*.2)} 0 ${f1(-r*1.3)}Z" fill="${C}"/><circle r="${f1(r*.3)}" fill="#FFF3C4"/>`
+};
+function blossom(ty, x, y, open, r, shape){
+  r = r || 10; const C = `var(${TVAR[ty]})`;
+  return `<g transform="translate(${f1(x)} ${f1(y)})"><g id="seg-${ty}" class="fl${open?" open":""}">
+    <path class="bud" d="M0 ${r*.8}C${-r*.9} 0 ${-r*.65} ${-r*1.2} 0 ${-r*1.7}C${r*.65} ${-r*1.2} ${r*.9} 0 0 ${r*.8}Z" fill="${C}" fill-opacity=".5"/>
+    <g class="bloom">${(FLOWERS[shape]||FLOWERS.round)(shape==="bell"?r*1.35:r,C)}</g></g></g>`;
+}
+const pot = clay => `<path d="M104 262h92l-10 34h-72z" fill="${clay?"#B8653F":"var(--pot)"}"/><rect x="98" y="254" width="104" height="13" rx="5" fill="${clay?"#CC7A52":"var(--pot)"}" style="${clay?"":"filter:brightness(1.18)"}"/>`;
+const leafPath = (x,y,ang,len,wid) => { const a = ang*Math.PI/180, dx = Math.sin(a), dy = -Math.cos(a), nx = -dy, ny = dx;
+  const tx = x+dx*len, ty = y+dy*len, mx = x+dx*len*.5, my = y+dy*len*.5;
+  return `M${f1(x)} ${f1(y)}Q${f1(mx+nx*wid)} ${f1(my+ny*wid)} ${f1(tx)} ${f1(ty)}Q${f1(mx-nx*wid)} ${f1(my-ny*wid)} ${f1(x)} ${f1(y)}Z`; };
+const qpt = (p0,p1,p2,t) => [ (1-t)*(1-t)*p0[0]+2*(1-t)*t*p1[0]+t*t*p2[0], (1-t)*(1-t)*p0[1]+2*(1-t)*t*p1[1]+t*t*p2[1] ];
+
+/* Each plant: s = growth from 0 (seedling) to 1 (7 days). Returns the drawing and 3 spots for today's flowers */
+const DRAW = {
+  fern(s){
+    const n = 3 + Math.round(s*6), H = 50 + s*160, B = [150,256]; let g = "", tips = [];
+    for(let i=0;i<n;i++){
+      const a = (-68 + 136*(i+.5)/n)*Math.PI/180, L = H*(1-.35*Math.abs(i+.5-n/2)/(n/2));
+      const tip = [B[0]+Math.sin(a)*L*.78, B[1]-Math.cos(a)*L*.95], c = [B[0]+Math.sin(a*.45)*L*.55, B[1]-Math.cos(a*.45)*L*.75];
+      g += `<path d="M${B[0]} ${B[1]}Q${f1(c[0])} ${f1(c[1])} ${f1(tip[0])} ${f1(tip[1])}" class="st" stroke-width="3"/>`;
+      let j = 0;
+      for(let t=.18;t<.96;t+=.085, j++){
+        const p = qpt(B,c,tip,t), p2 = qpt(B,c,tip,t+.01), dx = p2[0]-p[0], dy = p2[1]-p[1], m = Math.hypot(dx,dy)||1, nx = -dy/m, ny = dx/m, l = (1-t)*(8+12*s)+3;
+        g += `<path d="M${f1(p[0]+nx*l)} ${f1(p[1]+ny*l)}L${f1(p[0]-nx*l)} ${f1(p[1]-ny*l)}" stroke="var(${j%2?"--leaf1":"--leaf2"})" stroke-width="4" stroke-linecap="round"/>`;
+      }
+      tips.push(tip);
+    }
+    return {g, spots:[tips[0], tips[Math.floor(n/2)], tips[n-1]].map(p=>[p[0], p[1]-6])};
+  },
+  cactus(s){
+    const w = 30+s*18, hh = 34+s*150, top = 256-hh; let g = "";
+    const arm = (side, at, len) => { const y = 256-hh*at, x0 = 150+side*w*.4, x1 = 150+side*(w*.5+22+s*8), aw = w*.55;
+      g += `<path d="M${f1(x0)} ${f1(y)}H${f1(x1)}V${f1(y-len)}" fill="none" stroke="var(--leaf1)" stroke-width="${f1(aw)}" stroke-linecap="round" stroke-linejoin="round"/>`; return [x1, y-len-aw*.5]; };
+    const L = s>=.35 ? arm(-1,.42,26+s*36) : null, R = s>=.7 ? arm(1,.6,22+s*26) : null;
+    g += `<rect x="${f1(150-w/2)}" y="${f1(top)}" width="${f1(w)}" height="${f1(hh+6)}" rx="${f1(w/2)}" fill="var(--leaf2)"/>`;
+    g += `<path d="M150 ${f1(top+8)}V250M${f1(150-w/4)} ${f1(top+14)}V250M${f1(150+w/4)} ${f1(top+14)}V250" stroke="var(--leaf1)" stroke-width="2"/>`;
+    for(let y=top+18;y<246;y+=16) g += `<circle cx="${f1(150-w/2+3)}" cy="${f1(y)}" r="1.4" fill="#F7FBF5"/><circle cx="${f1(150+w/2-3)}" cy="${f1(y+8)}" r="1.4" fill="#F7FBF5"/>`;
+    return {g, clay:true, spots:[L||[150-w/2-6, top+hh*.35], [150, top-4], R||[150+w/2+6, top+hh*.25]]};
+  },
+  sunflower(s){
+    const H = 40+s*148, top = 256-H, r = 9+s*16; let g = `<path d="M150 256C146 ${f1(256-H*.4)} 155 ${f1(256-H*.7)} 150 ${f1(top)}" class="st" stroke-width="${f1(4+s*3)}"/>`;
+    const pairs = 1+Math.round(s*3);
+    for(let i=0;i<pairs;i++){ const y = 250-H*(.15+.55*i/Math.max(pairs,1)), len = 16+s*24;
+      g += `<path d="${leafPath(150,y,-62,len,len*.38)}" fill="var(--leaf1)"/><path d="${leafPath(150,y-8,62,len,len*.38)}" fill="var(--leaf2)"/>`; }
+    for(let k=0;k<16;k++){ const a = k*22.5*Math.PI/180, cx = 150+Math.sin(a)*r*1.25, cy = top-Math.cos(a)*r*1.25;
+      g += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(r*.32)}" ry="${f1(r*.62)}" transform="rotate(${k*22.5} ${f1(cx)} ${f1(cy)})" fill="#F2C230"/>`; }
+    g += `<circle cx="150" cy="${f1(top)}" r="${f1(r)}" fill="#7A4E2D"/><circle cx="150" cy="${f1(top)}" r="${f1(r*.6)}" fill="#5E3A20"/>`;
+    const y1 = 250-H*.5, len = 16+s*24;
+    return {g, spots:[[150-len*.9, y1+4], [150+len*.95, y1-10], [150+len*.9, 250-H*.2]]};
+  },
+  oak(s){
+    const th = 26+s*86, tw = 6+s*10, top = 256-th, cr = 20+s*56; let g = "";
+    g += `<path d="M${f1(150-tw/2)} 256C${f1(150-tw/2)} ${f1(256-th*.5)} ${f1(148-tw/3)} ${f1(top+10)} 146 ${f1(top)}H154C${f1(152+tw/3)} ${f1(top+10)} ${f1(150+tw/2)} ${f1(256-th*.5)} ${f1(150+tw/2)} 256Z" fill="#7A5A3A"/>`;
+    if(s>.3) g += `<path d="M150 ${f1(top+th*.3)}L${f1(150-cr*.5)} ${f1(top-cr*.1)}M150 ${f1(top+th*.2)}L${f1(150+cr*.5)} ${f1(top-cr*.2)}" stroke="#7A5A3A" stroke-width="${f1(tw*.4)}" stroke-linecap="round"/>`;
+    const blobs = [[0,-.55,.62],[-.55,-.2,.5],[.55,-.25,.52],[-.3,-.85,.45],[.32,-.85,.45],[0,-.1,.5],[-.75,-.6,.35],[.75,-.6,.35]].slice(0,3+Math.round(s*5));
+    blobs.forEach((b,k)=>{ g += `<circle cx="${f1(150+b[0]*cr)}" cy="${f1(top+b[1]*cr)}" r="${f1(b[2]*cr)}" fill="var(${k%2?"--leaf2":"--leaf1"})"/>`; });
+    return {g, spots:[[150-cr*.5, top-cr*.3], [150, top-cr*.95], [150+cr*.5, top-cr*.4]]};
+  },
+  lavender(s){
+    const n = 5+Math.round(s*9), H = 40+s*160; let g = "", tips = [];
+    for(let i=0;i<n;i++){ const a = (-34+68*(i+.5)/n)*Math.PI/180, L = H*(.75+.25*Math.cos(i*1.7)), tx = 150+Math.sin(a)*L, ty = 256-Math.cos(a)*L;
+      g += `<path d="M150 256L${f1(tx)} ${f1(ty)}" stroke="var(--leaf1)" stroke-width="2.4" stroke-linecap="round"/>`;
+      const sp = 4+Math.round(s*5); for(let k=0;k<sp;k++){ const t = 1-k*.045; g += `<ellipse cx="${f1(150+Math.sin(a)*L*t)}" cy="${f1(256-Math.cos(a)*L*t)}" rx="3.2" ry="4.4" fill="${k%2?"#C3B8E2":"#D6CEEE"}"/>`; }
+      tips.push([tx,ty]); }
+    g += `<path d="${leafPath(150,256,-40,24+s*10,5)}" fill="var(--leaf2)"/><path d="${leafPath(150,256,40,24+s*10,5)}" fill="var(--leaf2)"/>`;
+    return {g, spots:[tips[1], tips[Math.floor(n/2)], tips[n-2]].map(p=>[p[0], p[1]-12])};
+  },
+  monstera(s){
+    const n = 2+Math.round(s*4), H = 50+s*140; let g = "", c = [];
+    const leaf = (x,y,ang,sz) => {
+      let p = `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(ang)})"><path d="M0 0C${f1(-sz*1.1)} ${f1(-sz*.2)} ${f1(-sz*1.1)} ${f1(-sz*1.5)} 0 ${f1(-sz*1.3)}C${f1(sz*1.1)} ${f1(-sz*1.5)} ${f1(sz*1.1)} ${f1(-sz*.2)} 0 0Z" fill="var(--leaf1)"/>`;
+      p += `<path d="M0 ${f1(-sz*.1)}V${f1(-sz*1.25)}" stroke="var(--leaf2)" stroke-width="2"/>`;
+      for(let k=1;k<=3;k++){ const yy = -sz*(.25+k*.25); p += `<path d="M${f1(-sz*.95)} ${f1(yy+sz*.05)}L${f1(-sz*.35)} ${f1(yy)}M${f1(sz*.95)} ${f1(yy+sz*.05)}L${f1(sz*.35)} ${f1(yy)}" stroke="var(--sky1)" stroke-width="${f1(2+sz*.06)}" stroke-linecap="round"/>`; }
+      return p+`</g>`; };
+    for(let i=0;i<n;i++){ const ang = -60+120*(i+.5)/n, a = ang*Math.PI/180, L = H*(.6+.4*(1-Math.abs(ang)/70)), x = 150+Math.sin(a)*L*.62, y = 256-Math.cos(a)*L, sz = 15+s*16, b = ang*.8*Math.PI/180;
+      g += `<path d="M150 256Q${f1(150+Math.sin(a)*L*.2)} ${f1(256-L*.6)} ${f1(x)} ${f1(y)}" class="st" stroke-width="3.5"/>`; g += leaf(x,y,ang*.8,sz); c.push([x+Math.sin(b)*sz*1.4, y-Math.cos(b)*sz*1.4]); }
+    return {g, spots:[c[0], c[Math.floor(n/2)], c[n-1]]};
+  },
+  bamboo(s){
+    const H = 46+s*170, canes = [[150,1],[128,.78],[172,.62]].slice(0, 1+(s>=.3?1:0)+(s>=.65?1:0)); let g = "", tops = [];
+    canes.forEach(([x,f],ci)=>{ const h = H*f, top = 256-h;
+      g += `<rect x="${x-5}" y="${f1(top)}" width="10" height="${f1(h)}" rx="4" fill="${ci%2?"#7DB352":"#8DC25E"}"/>`;
+      for(let y=252, j=0; y>top+8; y-=24, j++){ g += `<rect x="${x-6}" y="${f1(y-2)}" width="12" height="3" rx="1.5" fill="#5E8F3A"/>`;
+        g += j%2 ? `<path d="${leafPath(x+4,y-2,58+ci*6,18+s*8,4.5)}" fill="var(--leaf1)"/>` : `<path d="${leafPath(x-4,y-2,-58,16+s*8,4.5)}" fill="var(--leaf2)"/>`; }
+      tops.push([x, top-6]); });
+    return {g, spots:[tops[1]||[128,256-H*.5], tops[0], tops[2]||[172,256-H*.4]]};
+  },
+  cherry(s){
+    const th = 30+s*80, top = 256-th, spread = 24+s*60; let g = "";
+    g += `<path d="M146 256C144 ${f1(256-th*.5)} 152 ${f1(top+20)} 150 ${f1(top)}" stroke="#6B4A3A" stroke-width="${f1(7+s*7)}" fill="none" stroke-linecap="round"/>`;
+    const ends = [[-1,.7],[1,.6],[-.5,1],[.55,1.05],[0,1.2]].slice(0, 2+Math.round(s*3)).map(([dx,dy])=>[150+dx*spread, top-dy*spread*.6]);
+    ends.forEach(e=>{ g += `<path d="M150 ${f1(top+8)}Q${f1((150+e[0])/2)} ${f1(top-4)} ${f1(e[0])} ${f1(e[1])}" stroke="#6B4A3A" stroke-width="${f1(3+s*2)}" fill="none" stroke-linecap="round"/>`; });
+    ends.forEach((e,k)=>{ const r = 12+s*16; [[0,0,1],[-.6,.3,.7],[.6,.3,.7],[0,-.6,.6]].forEach(([a,b,c],j)=>{ g += `<circle cx="${f1(e[0]+a*r)}" cy="${f1(e[1]+b*r)}" r="${f1(r*c)}" fill="${(k+j)%2?"#F6C3D0":"#F9D8E1"}"/>`; }); });
+    return {g, spots:[ends[0], ends[ends.length>4?4:ends.length-1], ends[1]].map(p=>[p[0], p[1]-4])};
+  },
+  tulips(s){
+    const n = 1+Math.round(s*4), H = 50+s*140, cols = ["#F6EFE6","#F7E2A8","#F3D9C9","#FBF6EE","#EFE3B8"]; let g = "", heads = [];
+    g += `<path d="${leafPath(146,256,-22,40+s*50,9+s*4)}" fill="var(--leaf1)"/><path d="${leafPath(154,256,24,36+s*46,9+s*4)}" fill="var(--leaf2)"/>`;
+    for(let i=0;i<n;i++){ const a = (n===1?0:(-22+44*i/(n-1)))*Math.PI/180, L = H*(i%2?.82:1), x = 150+Math.sin(a)*L, y = 256-Math.cos(a)*L, r = 9+s*6;
+      g += `<path d="M150 256Q${f1(150+Math.sin(a)*L*.3)} ${f1(256-L*.5)} ${f1(x)} ${f1(y)}" class="st" stroke-width="3"/>`;
+      g += `<path d="M${f1(x-r)} ${f1(y-r*1.6)}L${f1(x-r*.45)} ${f1(y-r*.9)}L${f1(x)} ${f1(y-r*1.8)}L${f1(x+r*.45)} ${f1(y-r*.9)}L${f1(x+r)} ${f1(y-r*1.6)}Q${f1(x+r*1.05)} ${f1(y+r*.2)} ${f1(x)} ${f1(y+r*.15)}Q${f1(x-r*1.05)} ${f1(y+r*.2)} ${f1(x-r)} ${f1(y-r*1.6)}Z" fill="${cols[i%cols.length]}"/>`;
+      heads.push([x,y-r*1.8]); }
+    const lt = 40+s*50;
+    return {g, spots:[[146+Math.sin(-22*Math.PI/180)*lt, 256-Math.cos(-22*Math.PI/180)*lt-8], [150, Math.min(...heads.map(h=>h[1]))-14], [154+Math.sin(24*Math.PI/180)*(lt*.92), 256-Math.cos(24*Math.PI/180)*lt*.92-8]]};
+  },
+  pine(s){
+    const H = 44+s*176, tiers = 2+Math.round(s*4), trunk = 12+s*14, top = 256-H, w0 = 30+s*62; let g = `<rect x="${f1(150-3-s*3)}" y="${f1(256-trunk-4)}" width="${f1(6+s*6)}" height="${f1(trunk+4)}" fill="#7A5A3A"/>`;
+    const span = H-trunk, ends = [];
+    for(let i=0;i<tiers;i++){ const yb = 256-trunk-span*i/tiers*.92, w = w0*(1-i/(tiers+.6)), yt = yb-span/tiers*1.55;
+      g += `<path d="M${f1(150-w)} ${f1(yb)}Q150 ${f1(yb-6)} ${f1(150+w)} ${f1(yb)}L150 ${f1(Math.max(yt,top))}Z" fill="${i%2?"#3F7A52":"#2F6744"}"/>`; ends.push([150-w, yb],[150+w, yb]); }
+    return {g, spots:[[ends[0][0]+10, ends[0][1]-8], [150, top-8], [ends[Math.min(3,ends.length-1)][0]-10, ends[Math.min(3,ends.length-1)][1]-8]]};
+  },
+  succulent(s){
+    const r = 26+s*62, cx = 150, cy = 252-r*.3; let g = "";
+    if(s>=.5) g += `<g transform="translate(${f1(cx-r*1.05)} 248) scale(.32)">${[0,1,2,3,4].map(k=>`<path d="${leafPath(0,0,-80+k*40,r,r*.32)}" fill="#8FBFA8"/>`).join("")}</g>`;
+    if(s>=.8) g += `<g transform="translate(${f1(cx+r*1.05)} 249) scale(.28)">${[0,1,2,3,4].map(k=>`<path d="${leafPath(0,0,-80+k*40,r,r*.32)}" fill="#A3CDB8"/>`).join("")}</g>`;
+    const layers = [[1,9,"#7FB39B"],[.78,8,"#8FBFA8"],[.55,7,"#A3CDB8"],[.32,5,"#B7DBC8"]].slice(0, 2+Math.round(s*2));
+    layers.forEach(([f,n,col],li)=>{ for(let k=0;k<n;k++){ const ang = -90+180*(k+.5)/n + (li%2?8:0);
+      g += `<path d="${leafPath(cx,cy+li*2,ang,r*f*1.05,r*f*.3)}" fill="${col}"/>`; g += `<circle cx="${f1(cx+Math.sin(ang*Math.PI/180)*r*f*1.02)}" cy="${f1(cy+li*2-Math.cos(ang*Math.PI/180)*r*f*1.02)}" r="2.2" fill="#D98AA0"/>`; } });
+    return {g, clay:true, spots:[[cx-r*1.05, cy-r*.35], [cx, cy-r*1.15], [cx+r*1.05, cy-r*.35]]};
+  },
+  palm(s){
+    const th = 34+s*130, top = [150+14*s, 256-th], fr = 5+Math.round(s*4), L = 34+s*70; let g = "";
+    g += `<path d="M146 256Q${f1(144+10*s)} ${f1(256-th*.6)} ${f1(top[0])} ${f1(top[1])}" stroke="#9A7650" stroke-width="${f1(8+s*5)}" fill="none" stroke-linecap="round"/>`;
+    for(let y=250;y>top[1]+6;y-=10){ const t = (256-y)/th, x = 146+(top[0]-146)*t*t*.9; g += `<path d="M${f1(x-4-s*2)} ${f1(y)}h${f1(8+s*4)}" stroke="#7E5E3E" stroke-width="2"/>`; }
+    const ends = [];
+    for(let i=0;i<fr;i++){ const a = (-150+300*(i+.5)/fr)*Math.PI/180, tip = [top[0]+Math.sin(a)*L, top[1]-Math.cos(a)*L*.55+ (Math.abs(Math.sin(a))*L*.35)], c = [top[0]+Math.sin(a)*L*.5, top[1]-L*.45];
+      g += `<path d="M${f1(top[0])} ${f1(top[1])}Q${f1(c[0])} ${f1(c[1])} ${f1(tip[0])} ${f1(tip[1])}" stroke="var(--leaf1)" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      for(let t=.2;t<.98;t+=.1){ const p = qpt(top,c,tip,t), p2 = qpt(top,c,tip,t+.01), dx = p2[0]-p[0], dy = p2[1]-p[1], m = Math.hypot(dx,dy)||1, l = (1-t*.6)*(7+s*7);
+        g += `<path d="M${f1(p[0])} ${f1(p[1])}l${f1(-dy/m*l+dx/m*l*.6)} ${f1(dx/m*l+dy/m*l*.6)}M${f1(p[0])} ${f1(p[1])}l${f1(dy/m*l+dx/m*l*.6)} ${f1(-dx/m*l+dy/m*l*.6)}" stroke="var(--leaf2)" stroke-width="3" stroke-linecap="round"/>`; }
+      ends.push(tip); }
+    g += `<circle cx="${f1(top[0]-4)}" cy="${f1(top[1]+5)}" r="${f1(3+s*2)}" fill="#7A5A3A"/><circle cx="${f1(top[0]+4)}" cy="${f1(top[1]+6)}" r="${f1(3+s*2)}" fill="#6B4A3A"/>`;
+    return {g, spots:[ends[0], [top[0], top[1]-L*.5], ends[fr-1]].map(p=>[p[0], p[1]-6])};
+  },
+  rose(s){
+    const n = 2+Math.round(s*4), H = 46+s*140; let g = "", heads = [];
+    for(let i=0;i<n;i++){ const a = (-30+60*(n===1?.5:i/(n-1)))*Math.PI/180, L = H*(i%2?.82:1), x = 150+Math.sin(a)*L*.85, y = 256-Math.cos(a)*L;
+      g += `<path d="M150 256Q${f1(150+Math.sin(a)*L*.25)} ${f1(256-L*.55)} ${f1(x)} ${f1(y)}" stroke="#4E7A4A" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      for(let t=.3;t<.9;t+=.22){ const px = 150+(x-150)*t, py = 256+(y-256)*t; g += `<path d="${leafPath(px,py,-50,10+s*6,4)}" fill="var(--leaf1)"/><path d="${leafPath(px,py,50,10+s*6,4)}" fill="var(--leaf2)"/>`; }
+      const r = 8+s*5; g += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}" fill="${i%2?"#F7E3D6":"#FBF1EA"}"/><path d="M${f1(x-r*.5)} ${f1(y+r*.1)}A${f1(r*.55)} ${f1(r*.55)} 0 1 1 ${f1(x+r*.45)} ${f1(y+r*.2)}" stroke="#E6C9B8" stroke-width="1.6" fill="none"/>`;
+      heads.push([x,y-r]); }
+    g = `<ellipse cx="150" cy="246" rx="${f1(30+s*30)}" ry="${f1(12+s*8)}" fill="var(--leaf1)"/>` + g;
+    return {g, spots:[[heads[0][0]+4, heads[0][1]+28], [150, Math.min(...heads.map(h=>h[1]))-10], [heads[n-1][0]-4, heads[n-1][1]+28]]};
+  },
+  orchid(s){
+    const lc = 2+Math.round(s*2), H = 40+s*150, sp = 1+(s>=.5?1:0); let g = "", ends = [];
+    g += `<path d="M162 256V${f1(256-H*.9)}" stroke="#B89A6A" stroke-width="2.5"/>`;
+    for(let k=0;k<sp;k++){ const side = k? -1 : 1, top = [150+side*(18+s*42), 256-H], c = [150+side*4, 256-H*1.05];
+      g += `<path d="M150 236Q${f1(c[0])} ${f1(c[1])} ${f1(top[0])} ${f1(top[1]+20)}" stroke="#5E7A4A" stroke-width="2.5" fill="none"/>`;
+      const fl = 2+Math.round(s*4);
+      for(let j=0;j<fl;j++){ const t = .45+.55*j/Math.max(fl-1,1), q = qpt([150,236],c,[top[0],top[1]+20],t), r = 6+s*4;
+        g += `<g transform="translate(${f1(q[0])} ${f1(q[1]+6)})">${[0,120,240].map(a=>`<ellipse cy="${f1(-r*.75)}" rx="${f1(r*.35)}" ry="${f1(r*.75)}" transform="rotate(${a})" fill="#FBF5F7"/>`).join("")}${[60,300].map(a=>`<ellipse cy="${f1(-r*.7)}" rx="${f1(r*.5)}" ry="${f1(r*.65)}" transform="rotate(${a})" fill="#F6E4EC"/>`).join("")}<circle r="${f1(r*.22)}" fill="#E8B4C8"/></g>`; }
+      ends.push([top[0], top[1]+20]); }
+    for(let i=0;i<lc;i++){ const side = i%2 ? 1 : -1, ang = side*(68-i*6); g += `<path d="${leafPath(150,252-i*4,ang,26+s*22,9+s*4)}" fill="var(${i%2?"--leaf1":"--leaf2"})"/>`; }
+    const e0 = ends[0], e1 = ends[1] || [150-(18+s*42), 256-H*.8];
+    return {g, spots:[[e1[0], e1[1]-6], [150, 256-H*.62], [e0[0]+6, e0[1]-10]]};
+  },
+  hydrangea(s){
+    const R = 30+s*48, cy = 250-R*.55; let g = "";
+    for(let k=0;k<9;k++){ const a = (-170+160*k/8)*Math.PI/180, d = R*.85; g += `<path d="${leafPath(150+Math.cos(a)*d*.2, cy+R*.3, (-80+160*k/8), R*.75, R*.28)}" fill="var(${k%2?"--leaf1":"--leaf2"})"/>`; }
+    const balls = [[0,-.55],[-.55,-.15],[.55,-.2],[-.3,-.85],[.32,-.9]].slice(0, 1+Math.round(s*4)), br = 12+s*9;
+    balls.forEach(([dx,dy],k)=>{ const bx = 150+dx*R, by = cy+dy*R*.6;
+      for(let j=0;j<10;j++){ const a = j*2.4, d = Math.sqrt(j/10)*br*.8, x = bx+Math.cos(a)*d, y = by+Math.sin(a)*d;
+        g += `<g transform="translate(${f1(x)} ${f1(y)})">${[45,135,225,315].map(q=>{ const r = q*Math.PI/180; return `<circle cx="${f1(Math.cos(r)*br*.17)}" cy="${f1(Math.sin(r)*br*.17)}" r="${f1(br*.17)}" fill="${(j+k)%3?"#C7D3F0":"#B4C3EA"}"/>`; }).join("")}</g>`; } });
+    return {g, spots:[[150-R*.85, cy-R*.05], [150, cy-R*.95], [150+R*.85, cy-R*.1]]};
+  },
+  olive(s){
+    const th = 30+s*80, top = 256-th, cr = 22+s*50; let g = "";
+    g += `<path d="M144 256C140 ${f1(256-th*.3)} 158 ${f1(256-th*.55)} 148 ${f1(top+8)}" stroke="#8A7A66" stroke-width="${f1(9+s*7)}" fill="none" stroke-linecap="round"/>`;
+    g += `<path d="M156 256C162 ${f1(256-th*.35)} 142 ${f1(256-th*.6)} 154 ${f1(top+6)}" stroke="#A39480" stroke-width="${f1(6+s*5)}" fill="none" stroke-linecap="round"/>`;
+    const blobs = [[0,-.45,.62],[-.6,-.15,.48],[.6,-.2,.5],[-.3,-.75,.42],[.32,-.78,.42]].slice(0, 3+Math.round(s*2));
+    blobs.forEach(([dx,dy,r],k)=>{ g += `<ellipse cx="${f1(150+dx*cr*1.2)}" cy="${f1(top+dy*cr)}" rx="${f1(r*cr*1.15)}" ry="${f1(r*cr*.8)}" fill="${k%2?"#A8BDA4":"#97AF95"}"/>`; });
+    const n = 40+Math.round(s*80); let seed = 7; const rnd = () => (seed = (seed*9301+49297)%233280)/233280;
+    for(let i=0;i<n;i++){ const b = blobs[i%blobs.length], a = rnd()*Math.PI*2, d = Math.sqrt(rnd())*b[2]*cr, x = 150+b[0]*cr*1.2+Math.cos(a)*d*1.1, y = top+b[1]*cr+Math.sin(a)*d*.75;
+      g += `<path d="${leafPath(x,y,rnd()*360,9+s*4,2.6)}" fill="${i%3?"#C3D3BC":"#7F9A7D"}"/>`; }
+    return {g, spots:[[150-cr*.85, top-cr*.25], [150, top-cr*.95], [150+cr*.85, top-cr*.3]]};
+  }
+};
+function plantSvg(k, n, done, anim, small){
+  const p = PLANTS[k % PLANTS.length], d = DRAW[p.id](n/7);
+  let g = d.g;
+  if(n===0) g = `<path d="M150 256V226" class="st" stroke-width="4"/><path d="${leafPath(150,232,-60,22,8)}" fill="var(--leaf1)"/><path d="${leafPath(150,228,60,20,7)}" fill="var(--leaf2)"/>`;
+  let fl = "";
+  if(done){ const types = Object.keys(TN), animating = !!(anim && anim.fresh && done.has(anim.type) && !matchMedia("(prefers-reduced-motion:reduce)").matches);
+    const spots = n===0 ? [[124,224],[150,206],[176,224]] : d.spots;
+    fl = types.map((ty,i)=>blossom(ty, spots[i][0], spots[i][1], done.has(ty) && !(animating && anim.type===ty), small?8:11, p.f)).join(""); }
+  return `<svg viewBox="0 0 300 300" aria-hidden="true"><ellipse cx="150" cy="292" rx="110" ry="9" fill="var(--sky2)"/>${g}${pot(n===0?false:d.clay)}${fl}</svg>`;
+}
+/* Constellation drawing. days = which days of the week are lit; today = index of today (or -1) with its 3 session arcs */
+function skySvg(k, days, today, done, anim){
+  const c = SKY[k % SKY.length], P = c.s.map(([x,y])=>[30+x*2.4, 26+y*2.1]);
+  let bg = "", seed = k*97+13; const rnd = () => (seed = (seed*9301+49297)%233280)/233280;
+  for(let i=0;i<34;i++) bg += `<circle cx="${f1(rnd()*300)}" cy="${f1(rnd()*260)}" r="${f1(.5+rnd()*1.1)}" fill="#fff" opacity="${f1(.25+rnd()*.45)}"/>`;
+  const lvl = i => i===today ? (done ? done.size : 0) : (+days[i]||0), lit = i => lvl(i)>0;
+  /* Star brightness: 1 session = small and soft, 2 = brighter, 3 = brightest with a thin ring */
+  const star = (p,n) => !n ? `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="3" fill="#56619C"/>`
+    : (n>=3 ? `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="7.6" fill="none" stroke="#F5C85A" stroke-width="1.3" opacity=".75"/>` : "")
+      + `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="${[0,3.5,4.2,4.8][Math.min(n,3)]}" fill="#F5C85A" opacity="${[0,.85,1,1][Math.min(n,3)]}"/>`;
+  const lines = c.l.map(([a,b])=>{ const on = lit(a)&&lit(b);
+    return `<path d="M${f1(P[a][0])} ${f1(P[a][1])}L${f1(P[b][0])} ${f1(P[b][1])}" stroke="${on?"#F5C85A":"#3A4684"}" stroke-width="${on?1.8:1.2}" stroke-opacity="${on?.7:.9}"${on?"":' stroke-dasharray="3 5"'}/>`; }).join("");
+  const animating = !!(anim && anim.fresh && done && done.has(anim.type) && !matchMedia("(prefers-reduced-motion:reduce)").matches);
+  const stars = P.map((p,i)=>{
+    if(i===today){
+      const types = Object.keys(TN), R = 15, pt = a => { const q=a*Math.PI/180; return f1(p[0]+R*Math.cos(q))+" "+f1(p[1]+R*Math.sin(q)); };
+      const arcs = types.map((ty,j)=>{ const a0 = -90+10+j*120, d = `M${pt(a0)} A${R} ${R} 0 0 1 ${pt(a0+100)}`;
+        return `<path d="${d}" fill="none" stroke="#3A4684" stroke-width="4" stroke-linecap="round"/>` + (done&&done.has(ty) ? `<path id="seg-${ty}" d="${d}" pathLength="100" class="seg-fill sm" style="stroke:var(${TVAR[ty]});stroke-dashoffset:${animating&&anim.type===ty?99.9:0}"/>` : ""); }).join("");
+      return arcs + (lit(i) ? star(p, lvl(i)) : `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="3.5" fill="#6874B0"/>`);
+    }
+    return star(p, lvl(i));
+  }).join("");
+  return `<svg viewBox="0 0 300 260" aria-hidden="true">${bg}${lines}${stars}</svg>`;
+}
+/* The picture at the top of the Today page, depending on the chosen style */
+function heroHTML(done, anim){
+  const st = sty(); if(st==="original") return ringHTML(done, anim);
+  const types = Object.keys(TN), W = weeks(), w = W[W.length-1], todayIdx = (new Date(day(new Date())+"T12:00:00Z").getUTCDay()+6)%7;
+  const animating = !!(anim && anim.fresh && done.has(anim.type) && !matchMedia("(prefers-reduced-motion:reduce)").matches);
+  const n = types.filter(ty=>done.has(ty)).length, shown = n-(animating?1:0), left = types.length-n;
+  const legend = `<div class="legend rlegend">${types.map(ty=>`<span style="--c:var(${TVAR[ty]});${done.has(ty)?"color:var(--ink);font-weight:700":""}">${tn(ty)}</span>`).join("")}</div>`;
+  const chip = `<span class="pchip"><b id="ringN">${shown}/${types.length}</b> ${t("today")}</span>`;
+  const wd = t(w.n<=1 ? "daysWeek1" : "daysWeek").replace("{n}", w.n);
+  if(st==="garden"){
+    const sub = left===0 ? t("allOpen") : left===1 ? t("budLeft1") : t("budsLeft").replace("{n}",left), nm = L(PLANTS[w.k%PLANTS.length].n);
+    return `<div class="scene" id="ring" aria-label="${nm}, ${wd}">${chip}
+      <button class="sinfo ginfo" onclick="showPlant(${w.k%PLANTS.length})" aria-label="${t("plantA")}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.3" r=".6" fill="currentColor"/></svg></button>
+      <p class="pcap">${nm}<small>${wd}<br>${sub}</small></p>${plantSvg(w.k, w.n, done, anim)}</div>${legend}`;
+  }
+  const sub = t(["star0","star1","star2","starAll"][n]), nm = L(SKY[w.k%SKY.length].n);
+  return `<div class="scene sky" id="ring" aria-label="${nm}, ${wd}">${chip}
+    <button class="sinfo" onclick="showStory(${w.k%SKY.length})" aria-label="${t("storyA")}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.3" r=".6" fill="currentColor"/></svg></button>
+    <p class="pcap">${nm}<small>${wd}<br>${sub}</small></p>${skySvg(w.k, w.lv, todayIdx, done, anim)}</div>${legend}`;
+}
+/* Progress page: every week's plant or constellation */
+function collectionCard(){
+  const st = sty(); if(st==="original") return "";
+  const W = weeks().slice().reverse(), df = new Intl.DateTimeFormat(cfg.lang,{day:"numeric",month:"short",timeZone:"UTC"});
+  const items = W.map(w=>`<div class="wk"><div class="wkp${st==="night"?" sky":""}">${st==="garden" ? plantSvg(w.k, w.n, null, null, true) : skySvg(w.k, w.lv, -1)}</div>
+    <b>${L((st==="garden"?PLANTS[w.k%PLANTS.length]:SKY[w.k%SKY.length]).n)}</b><span class="mute">${df.format(new Date(w.start+"T12:00:00Z"))}, ${w.n}/7</span></div>`).join("");
+  return `<details class="card ach" ${hOpen.col?"open":""} ontoggle="hOpen.col=this.open"><summary><b>${t(st==="garden"?"gardenT":"skyT")}</b><span class="mute">${W.length}</span></summary><div class="wgrid">${items}</div></details>`;
+}
+let celebrate = null;
+/* ---- Sounds (made in code, no sound files) ---- */
+let AC = null;
+function audio(){
+  if(cfg.sound===false) return null;
+  try{ if(!AC){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; AC = new C(); } if(AC.state==="suspended") AC.resume(); }catch(e){ return null; }
+  return AC;
+}
+function tone(f, at, dur, type, vol){
+  const a = audio(); if(!a) return;
+  const o = a.createOscillator(), g = a.createGain(), t0 = a.currentTime + at;
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0+0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0+dur+0.05);
+  TONES.push({o, t0}); if(TONES.length>60) TONES.splice(0,30);
+}
+/* Sounds planned in advance (the countdown) can be cancelled, e.g. on Pause or Skip */
+const TONES = []; let buzzTimers = [];
+function cancelSounds(){
+  const a = AC; if(a) TONES.forEach(x=>{ if(x.t0 > a.currentTime){ try{ x.o.stop(); }catch(e){} } });
+  TONES.length = 0; buzzTimers.forEach(clearTimeout); buzzTimers = [];
+}
+/* Session complete: a bright "ta-da" */
+function sfxDone(){ tone(784,0,.16,"triangle",.22); tone(1047,.1,.16,"triangle",.22); [1319,1568,2093].forEach(f=>tone(f,.21,.6,"sine",.11)); tone(523,.21,.5,"sine",.12); }
+/* New card: a magic sparkle */
+function sfxCard(){ [1047,1319,1568,2093,2637,3136].forEach((f,k)=>tone(f,k*.055,.25,"sine",.1)); [1568,2093,2637].forEach(f=>tone(f,.38,1.1,"triangle",.05)); }
+
+/* ---- Session sounds: ticks for the last 3 seconds, a "go" sound when an exercise starts, a calm sound when a rest starts ---- */
+const buzz = p => { try{ if(cfg.sound!==false && navigator.vibrate) navigator.vibrate(p); }catch(e){} };
+/* Race-start style: three short low beeps for the countdown, then one long high beep when the exercise starts */
+function sfxTick(at){ at = at||0; tone(523,at,.17,"square",.06); tone(523,at,.17,"sine",.1); buzzTimers.push(setTimeout(()=>buzz(25), at*1000)); }
+function sfxGo(at){ at = at||0; tone(1047,at,.55,"square",.06); tone(1047,at,.55,"sine",.12); buzzTimers.push(setTimeout(()=>buzz([60,40,60]), at*1000)); }
+function sfxRest(at){ at = at||0; tone(523,at,.25,"sine",.14); tone(392,at+.14,.35,"sine",.12); buzzTimers.push(setTimeout(()=>buzz(120), at*1000)); }
+
+/* ---- Monday recap: shown once, the first time the app is opened in a new week ---- */
+function weekStats(start){
+  const end = new Date(start+"T12:00:00Z"); end.setUTCDate(end.getUTCDate()+7); const e = iso(end);
+  const L7 = log.filter(l=>l.date>=start && l.date<e), by = {};
+  L7.forEach(l=>{ const s = SESSIONS.find(x=>x.id===l.session); if(s) (by[l.date]=by[l.date]||new Set()).add(s.type); });
+  return {sessions:L7.length, mins:L7.reduce((a,l)=>a+l.mins,0), days:Object.keys(by).length, by};
+}
+function checkRecap(){
+  if(!cfg.started || !log.length || !$("#intro").hidden) return;
+  const now = weekStart(day(new Date()));
+  if(cfg.recapWeek===now) return;
+  const first = weekStart(log.map(l=>l.date).sort()[0]);
+  cfg.recapWeek = now; wr("fb-cfg",cfg);
+  if(first>=now) return; /* first week of use: nothing to sum up yet */
+  const pd = new Date(now+"T12:00:00Z"); pd.setUTCDate(pd.getUTCDate()-7); const prev = iso(pd), st = weekStats(prev);
+  const W = weeks(), cur = W[W.length-1], last = W.find(w=>w.start===prev) || {k:cur.k-1, n:st.days};
+  let html = `<h2>${t("recapT")}</h2>`;
+  if(!st.sessions) html += `<p>${t("rFresh")}</p>`;
+  else {
+    html += `<div class="rstats"><div class="stat"><b>${st.days}</b><span class="mute">${t("rDays")}</span></div>
+      <div class="stat"><b>${st.sessions}</b><span class="mute">${t("nsess")}</span></div><div class="stat"><b>${fmtTime(st.mins)}</b><span class="mute">${t("totalT")}</span></div></div>`;
+    if(sty()==="original"){
+      const cells = DAYS[cfg.lang].split("").map((n,i)=>{ const d = new Date(prev+"T12:00:00Z"); d.setUTCDate(d.getUTCDate()+i); const k = iso(d);
+        return `<div class="dot"><div class="l">${n}</div><div class="rg">${miniRing(st.by[k])}<span>${d.getUTCDate()}</span></div></div>`; }).join("");
+      html += `<div class="week">${cells}</div>`;
+    } else if(sty()==="garden"){
+      const p = PLANTS[last.k%PLANTS.length];
+      html += `<p class="rlast"><b>${L(p.n)}</b><br>${st.days>=7 ? t("rFull") : t("rGrew").replace("{n}",st.days)}</p>`;
+    } else {
+      const c = SKY[last.k%SKY.length];
+      html += `<p class="rlast"><b>${L(c.n)}</b><br>${st.days>=7 ? t("rSkyFull") : t("rStars").replace("{n}",st.days)}</p>`;
+    }
+  }
+  if(sty()!=="original"){
+    const garden = sty()==="garden", item = garden ? PLANTS[cur.k%PLANTS.length] : SKY[cur.k%SKY.length], nm = L(item.n);
+    const pic = garden ? plantSvg(cur.k, 7, null, null) : skySvg(cur.k, [3,3,3,3,3,3,3], -1);
+    html += `<div class="rnext"><p class="rnt">${t("nextT")}: <b>${nm}</b></p>
+      <div class="rpic${garden?"":" sky"}">${pic}</div></div>`;
+  }
+  $("#intro").innerHTML = `<div class="ibox story recap">${html}<button class="primary" onclick="closeStory()">${t("letsGo")}</button></div>`;
+  $("#intro").hidden = false;
+}
+
+/* ---- Share image (square picture made on the phone, then the phone's share menu) ---- */
+function inlineSvg(svg){
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim() || "#888";
+  return svg.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ')
+    .replace(/<path class="bud"[^>]*\/>/g,"")
+    .replace(/class="st"/g,`fill="none" stroke="${v("--stem")}" stroke-linecap="round"`)
+    .replace(/class="seg-track"/g,`fill="none" stroke="${v("--line")}" stroke-width="16" stroke-linecap="round"`)
+    .replace(/class="seg-fill sm"/g,'fill="none" stroke-width="4" stroke-linecap="round"')
+    .replace(/class="seg-fill"/g,'fill="none" stroke-width="16" stroke-linecap="round"')
+    .replace(/var\((--[\w-]+)\)/g,(m,n)=>v(n));
+}
+const svgImg = svg => new Promise(res=>{ const im = new Image(); im.onload = ()=>res(im); im.onerror = ()=>res(null); im.src = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(inlineSvg(svg)); });
+const LOGO = '<svg viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#16303D"/><rect x="230" y="80" width="56" height="28" fill="#F0B429"/><circle cx="256" cy="267" r="138" fill="none" stroke="#F0B429" stroke-width="32"/><rect x="241" y="175" width="30" height="95" fill="#F0B429"/><path d="M272 278l55 30" stroke="#E8F2F0" stroke-width="22"/><circle cx="256" cy="272" r="24" fill="#F0B429"/></svg>';
+function wrapText(x, text, cx, y, maxW, lh){
+  const words = text.split(" "); let line = "";
+  words.forEach(w=>{ const tst = line ? line+" "+w : w; if(x.measureText(tst).width > maxW && line){ x.fillText(line, cx, y); y += lh; line = w; } else line = tst; });
+  if(line) x.fillText(line, cx, y); return y;
+}
+async function shareImage(kind, cardId){
+  const S = 1080, cv = document.createElement("canvas"); cv.width = cv.height = S; const x = cv.getContext("2d");
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  const FONT = '"Atkinson Hyperlegible", system-ui, sans-serif', night = sty()==="night";
+  x.fillStyle = kind==="card" ? (v("--rw")||"#14303A") : night ? "#0E1530" : v("--bg"); x.fillRect(0,0,S,S);
+  const ink = kind==="card" || night ? "#EAF2EF" : v("--ink"), mute = kind==="card" || night ? "#9DB5BC" : v("--mute");
+  const logo = await svgImg(LOGO); if(logo) x.drawImage(logo, 60, 56, 84, 84);
+  x.fillStyle = ink; x.font = `700 44px ${FONT}`; x.textAlign = "left"; x.fillText("Minute Fit", 164, 112);
+  let text;
+  if(kind==="card"){
+    const c = CARDS.find(k=>k.id===cardId), w = 460, h = 620, cx = (S-w)/2, cy = 190;
+    x.save(); x.translate(S/2, cy+h/2); x.rotate(-.05); x.translate(-S/2, -(cy+h/2));
+    x.fillStyle = c.c; x.beginPath(); x.roundRect(cx, cy, w, h, 44); x.fill();
+    const g = x.createLinearGradient(cx, cy, cx+w, cy+h); g.addColorStop(0,"rgba(255,255,255,.3)"); g.addColorStop(.5,"rgba(255,255,255,0)"); g.addColorStop(1,"rgba(0,0,0,.14)"); x.fillStyle = g; x.fill();
+    const ic = await svgImg(`<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${c.g}"/></svg>`); if(ic) x.drawImage(ic, S/2-120, cy+70, 240, 240);
+    x.fillStyle = "#fff"; x.textAlign = "left"; x.font = `700 52px ${FONT}`; x.fillText(L(c.n), cx+40, cy+h-150);
+    x.font = `400 32px ${FONT}`; wrapText(x, L(c.d), cx+40, cy+h-96, w-80, 40); x.restore();
+    x.fillStyle = ink; x.textAlign = "center"; x.font = `700 46px ${FONT}`; x.fillText(t("newCard"), S/2, 930);
+    text = t("shareCard").replace("{c}", L(c.n));
+  } else {
+    const done = new Set(Object.keys(TN)), W = weeks(), w = W[W.length-1], todayIdx = (new Date(day(new Date())+"T12:00:00Z").getUTCDay()+6)%7;
+    let svg, box = [190, 170, 700, 700];
+    if(sty()==="garden") svg = plantSvg(w.k, w.n, done, null);
+    else if(night) svg = skySvg(w.k, w.lv, todayIdx, done, null), box = [120, 200, 840, 728];
+    else svg = `<svg viewBox="0 0 200 200">${Object.keys(TN).map((ty,i)=>{ const R=78,C=100,a0=-90+7+i*120, pt=a=>{const r=a*Math.PI/180;return (C+R*Math.cos(r)).toFixed(2)+" "+(C+R*Math.sin(r)).toFixed(2);};
+        return `<path d="M${pt(a0)} A${R} ${R} 0 0 1 ${pt(a0+106)}" fill="none" stroke="var(${TVAR[ty]})" stroke-width="16" stroke-linecap="round"/>`; }).join("")}</svg>`, box = [240, 190, 600, 600];
+    if(sty()==="garden"){ const gr = x.createLinearGradient(0,150,0,900); gr.addColorStop(0, v("--sky1")); gr.addColorStop(1, v("--sky2")); x.fillStyle = gr; x.beginPath(); x.roundRect(150,160,780,740,60); x.fill(); }
+    const im = await svgImg(svg); if(im) x.drawImage(im, ...box);
+    if(sty()==="original"){ x.fillStyle = ink; x.textAlign = "center"; x.font = `700 150px ${FONT}`; x.fillText("3/3", S/2, 545); }
+    x.fillStyle = ink; x.textAlign = "center"; x.font = `700 54px ${FONT}`; x.fillText(t("three"), S/2, 965);
+    x.fillStyle = mute; x.font = `400 36px ${FONT}`; x.fillText(`${streak()} ${t("strk")}`, S/2, 1020);
+    text = t("shareDay");
+  }
+  const blob = await new Promise(r=>cv.toBlob(r,"image/png")), file = new File([blob], "minute-fit.png", {type:"image/png"});
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], text}); return; } }catch(e){ if(e && e.name==="AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "minute-fit.png"; document.body.appendChild(a); a.click(); a.remove();
+}
+const SHARE_IC = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/></svg>';
+
+/* ---- New card reveal (shown after the ring and confetti) ---- */
+let cardQueue = [];
+function showCards(list){ cardQueue = list.slice(); nextCard(); }
+function nextCard(){
+  const c = cardQueue.shift(), el = $("#reward");
+  if(!c){ el.hidden = true; el.innerHTML = ""; return; }
+  const on = replay(log).on, n = CARDS.filter(x=>on[x.id]).length - cardQueue.length;
+  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  el.innerHTML = `<button class="shareic rwshare" onclick="shareImage('card','${c.id}')" aria-label="${t("shareBtn")}">${SHARE_IC}</button><div class="rw"><h1>${t("newCard")}</h1>
+  <div class="stage"><div class="flip${reduce?" still":""}"><div class="face back"><span>?</span></div>
+  <div class="face front" style="--c:${c.c}"><div class="cn">${t("cardOf").replace("{n}",n).replace("{t}",CARDS.length)}</div>
+  <svg width="104" height="104" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${c.g}"/></svg>
+  <h2>${L(c.n)}</h2><p>${L(c.d)}</p></div></div></div>
+  <p class="coll">${t("coll")}</p><div class="dots">${CARDS.map((x,k)=>`<i class="${k<n?"on":""}"></i>`).join("")}</div>
+  <button class="primary" id="rwGo">${t("cont")}</button></div>`;
+  el.hidden = false; $("#rwGo").onclick = nextCard;
+  setTimeout(sfxCard, reduce ? 0 : 650);
+  if(!reduce) setTimeout(()=>{ const f = el.querySelector(".flip"); if(f){ const b = f.getBoundingClientRect(); confetti(90, {x:b.left+b.width/2, y:b.top+b.height/2}); } }, 950);
+}
+function runCelebration(c){
+  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const done = new Set(log.filter(l=>l.date===day(new Date())).map(l=>(SESSIONS.find(x=>x.id===l.session)||{}).type));
+  const total = Object.keys(TN).filter(ty=>done.has(ty)).length, full = total>=Object.keys(TN).length;
+  const seg = $("#seg-"+c.type);
+  const cards = c.cards || [];
+  const party = () => {
+    sfxDone();
+    if(cards.length) setTimeout(() => showCards(cards), reduce ? 600 : 1900);
+    const n = $("#ringN"); if(n){ n.textContent = total+"/"+Object.keys(TN).length; n.classList.add("pop"); }
+    /* Classic: confetti from the ring. Garden: petals from the flower that just opened. Night sky: sparkles from today's star */
+    const kind = sty()==="garden" ? "petals" : sty()==="night" ? "stars" : "classic";
+    const r = kind==="classic" ? $("#ring") : ($("#seg-"+c.type) || $("#ring"));
+    if(r && !reduce){ const b = r.getBoundingClientRect(); confetti(full?280:150, {x:b.left+b.width/2, y:b.top+b.height/2}, kind, c.type); }
+  };
+  if(!c.fresh || reduce || !seg){ setTimeout(party, reduce?0:500); return; }
+  setTimeout(()=>{ if(!document.body.contains(seg)) return; if(seg.classList.contains("fl")){ seg.classList.add("open"); setTimeout(party, 800); } else { seg.style.strokeDashoffset = 0; setTimeout(party, 1150); } }, 450);
+}
+function confetti(count, o, kind, ty){
+  kind = kind || "classic";
+  const old = document.getElementById("confetti"); if(old) old.remove();
+  const cv = document.createElement("canvas"); cv.id = "confetti"; document.body.appendChild(cv);
+  const ctx = cv.getContext("2d"), dpr = window.devicePixelRatio||1, W = innerWidth, H = innerHeight;
+  cv.width = W*dpr; cv.height = H*dpr; ctx.scale(dpr,dpr);
+  const cs = getComputedStyle(document.documentElement), cv1 = n => cs.getPropertyValue(n).trim();
+  const own = ty ? cv1(TVAR[ty]) : "#F0B429";
+  const cols = kind==="petals" ? [own, own, cv1("--mob"), cv1("--car"), cv1("--str"), "#F9D8E1", cv1("--leaf1")||"#5E9C6E", cv1("--leaf2")||"#78B487"]
+             : kind==="stars" ? ["#F5C85A","#FFE7A3","#FFFFFF","#FFD978"]
+             : ["#F0B429","#2A8C8C","#D94F6B","#5B5BD6","#FFFFFF","#3C8D5A"];
+  const P = [], N = kind==="classic" ? count : Math.round(count*.7);
+  for(let i=0;i<N;i++){
+    const burst = i < N*0.6, a = -Math.PI/2 + (Math.random()-.5)*Math.PI*(kind==="classic"?1.2:2), sp = kind==="classic" ? 8+Math.random()*10 : 4+Math.random()*7;
+    const p = {x:burst?o.x:Math.random()*W, y:burst?o.y:-20-Math.random()*H*0.6,
+      vx:burst?Math.cos(a)*sp:(Math.random()-.5)*2, vy:burst?Math.sin(a)*sp:1+Math.random()*2,
+      w:6+Math.random()*6, h:10+Math.random()*8, rot:Math.random()*6.28, vr:(Math.random()-.5)*.3,
+      tilt:Math.random()*6.28, vt:.05+Math.random()*.15, c:cols[i%cols.length], ph:Math.random()*6.28};
+    if(kind==="stars" && !burst){ p.x = Math.random()*W; p.y = Math.random()*H*.75; p.vx = 0; p.vy = 0; p.born = Math.random()*1800; }
+    if(kind==="stars"){ p.w = 3+Math.random()*6; }
+    P.push(p);
+  }
+  /* one shooting star for the Night sky */
+  const shoot = kind==="stars" ? {x:-60, y:H*.12, vx:W/55, vy:H/260} : null;
+  const t0 = performance.now(), END = kind==="classic" ? 7000 : 6000;
+  const star4 = (r) => { ctx.beginPath(); for(let k=0;k<8;k++){ const a = k*Math.PI/4, d = k%2 ? r*.32 : r; ctx.lineTo(Math.cos(a)*d, Math.sin(a)*d); } ctx.closePath(); ctx.fill(); };
+  (function frame(now){
+    const el = now-t0; ctx.clearRect(0,0,W,H); let alive = 0;
+    const fade = Math.max(0, Math.min(1, (END-el)/1000));
+    P.forEach(p=>{
+      if(kind==="petals"){ p.vx = p.vx*.975 + Math.sin(el/500+p.ph)*.09; p.vy = p.vy*.96+.07; }
+      else if(kind==="stars"){ p.vx *= .95; p.vy = p.vy*.95+.025; }
+      else { p.vx = p.vx*.985 + Math.sin(el/400+p.ph)*.04; p.vy = p.vy*.97+.12; }
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr*(kind==="petals"?.5:1); p.tilt += p.vt;
+      if(p.y < H+30) alive++;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.fillStyle = p.c;
+      if(kind==="stars"){
+        const age = el-(p.born||0); if(age<0){ ctx.restore(); return; }
+        ctx.globalAlpha = fade * Math.min(1, age/300) * (.55+.45*Math.sin(el/180+p.ph)); ctx.rotate(p.rot*.3); star4(p.w);
+      } else if(kind==="petals"){
+        ctx.globalAlpha = fade; ctx.rotate(p.rot); ctx.scale(1, .45+.55*Math.abs(Math.cos(p.tilt)));
+        ctx.beginPath(); ctx.ellipse(0,0,p.w*.6,p.h*.6,0,0,6.29); ctx.fill();
+      } else {
+        ctx.globalAlpha = fade; ctx.rotate(p.rot); ctx.scale(1, Math.cos(p.tilt)); ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      }
+      ctx.restore();
+    });
+    if(shoot && el>400 && shoot.x < W+80){ shoot.x += shoot.vx; shoot.y += shoot.vy;
+      const g = ctx.createLinearGradient(shoot.x-120, shoot.y-120*shoot.vy/shoot.vx, shoot.x, shoot.y); g.addColorStop(0,"rgba(255,231,163,0)"); g.addColorStop(1,"rgba(255,231,163,.95)");
+      ctx.strokeStyle = g; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(shoot.x-120, shoot.y-120*shoot.vy/shoot.vx); ctx.lineTo(shoot.x, shoot.y); ctx.stroke(); alive++; }
+    if((alive || kind==="stars") && el < END) requestAnimationFrame(frame); else cv.remove();
+  })(t0);
+}
+let fType = "mobility", fLvl = "beginner", fList = [];
+function showVideo(i){
+  const e = fList[i]; if(!e) return;
+  $("#vid").innerHTML = `<div class="vbox"><div class="row"><h2 class="grow" style="margin:0">${baseName(e)}</h2><button class="burger" onclick="closeVid()" aria-label="${t("close")}">${XI}</button></div>
+  <div class="video" style="margin:14px 0 0">${media(e)}</div>${L(e.cue)?`<p style="margin-top:12px">${L(e.cue)}</p>`:""}${tipsHTML(e)}</div>`;
+  $("#vid").hidden = false;
+}
+function closeVid(){ $("#vid").innerHTML = ""; $("#vid").hidden = true; }
+function setF(k,v){ if(k==="type") fType=v; else fLvl=v; render(); }
+/* Exercise library: "(1st side)" / "(2nd side)" are only useful during a session, so they are removed here */
+const SIDE = / \((?:1st side|2nd side|1er côté|2e côté|1\.er lado|2\.º lado)\)$/;
+const baseKey = e => e.name[0].replace(SIDE,""), baseName = e => L(e.name).replace(SIDE,"");
+function focusHTML(){
+  const ses = SESSIONS.find(x=>x.type===fType), list = ses ? ses.levels[fLvl].filter((e,k,a)=>!e.gate && a.findIndex(x=>!x.gate && baseKey(x)===baseKey(e))===k) : [];
+  const btn = (k,v,cur,label) => `<button aria-pressed="${v===cur}" onclick="setF('${k}','${v}')">${label}</button>`;
+  const PIC = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg>';
+  return `<h2 style="margin-bottom:2px">${t("focusQ")}</h2><p class="note" style="margin-bottom:12px">${t("focusSub")}</p>
+  <div class="opts" style="margin-bottom:8px">${Object.keys(TN).map(k=>btn("type",k,fType,tn(k))).join("")}</div>
+  <div class="opts" style="margin-bottom:14px">${LVS.map(k=>btn("lvl",k,fLvl,t("lv_"+k))).join("")}</div>
+  <div class="exgrid">${(fList=list).map((e,i)=>`<div class="exc"><button class="eximg" onclick="showVideo(${i})" aria-label="${baseName(e)}">${e.img?`<img src="${e.img}" alt="" loading="lazy">`:PIC}<span class="play" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg></span></button>
+    <b>${baseName(e)}</b></div>`).join("")}</div>`;
+}
+function sessionBtn(s){
+  return `<button class="session" id="s-${s.id}" onclick="openSheet('${s.id}')"><div class="row"><div class="grow"><span class="tag ${s.type}">${tn(s.type)}</span>
+  <h2 style="margin:8px 0 2px">${L(s.name)}</h2><span class="mute">${L(s.desc)}</span></div>${durHTML(s)}</div></button>`;
+}
+function title(types){
+  const n = types.size;
+  if(n>=3) return t("three");
+  if(n===2) return t("two");
+  if(n===1) return t("one").replace("{x}", tn([...types][0]).toLowerCase());
+  return t("ready");
+}
+let achOpen = false, openCard = null, hOpen = {};
+/* Replays the history in order: returns the stats and the date each card was unlocked */
+function replay(entries){
+  const x = {sessions:0, best:0, full:0, early:false, evening:false, weekend:false, lvl2:false, expert:false}, on = {}, types = {};
+  let run = 0, prev = null;
+  entries.forEach(l=>{
+    const s = SESSIONS.find(v=>v.id===l.session); if(!s) return;
+    x.sessions++;
+    if(l.date!==prev){ run = prev && (new Date(l.date+"T12:00:00Z")-new Date(prev+"T12:00:00Z"))===864e5 ? run+1 : 1; x.best = Math.max(x.best,run); prev = l.date; }
+    const ty = (types[l.date] = types[l.date] || new Set()), had = ty.size; ty.add(s.type);
+    if(had<3 && ty.size>=Object.keys(TN).length) x.full++;
+    if(l.h!=null){ if(l.h>=5 && l.h<9) x.early = true; if(l.h>=20 || l.h<5) x.evening = true; }
+    const wd = new Date(l.date+"T12:00:00Z").getUTCDay(); if(wd===0 || wd===6) x.weekend = true;
+    if(l.level==="intermediate" || l.level==="expert") x.lvl2 = true;
+    if(l.level==="expert") x.expert = true;
+    CARDS.forEach(c=>{ if(!on[c.id] && c.ok(x)) on[c.id] = l.date; });
+  });
+  return {x, on};
+}
+function cardDates(){ const out = {}, on = replay(log).on; CARDS.forEach(c=>{ if(on[c.id]) (out[on[c.id]]=out[on[c.id]]||[]).push(c); }); return out; }
+const pad = n => String(n).padStart(2,"0");
+function historyCard(){
+  const by = {};
+  log.forEach(l=>{ const s=SESSIONS.find(x=>x.id===l.session); if(!s) return; const o=(by[l.date]=by[l.date]||{types:new Set(),mins:0,n:0}); o.types.add(s.type); o.mins+=l.mins; o.n++; });
+  const keys = Object.keys(by).sort(), todayK = day(new Date()), bd = cardDates();
+  const head = `<details class="card ach" ${hOpen.all?"open":""} ontoggle="hOpen.all=this.open"><summary><b>${t("hist")}</b><span></span></summary>`;
+  if(!keys.length) return head+`<p class="mute" style="margin-top:12px">${t("histEmpty")}</p></details>`;
+  const [ty,tm] = todayK.split("-").map(Number); let [y,m] = keys[0].split("-").map(Number); const months = [];
+  while(y<ty || (y===ty && m<=tm)){ months.push([y,m]); if(++m>12){ m=1; y++; } }
+  const mf = new Intl.DateTimeFormat(cfg.lang,{month:"long",year:"numeric",timeZone:"UTC"}), mf1 = new Intl.DateTimeFormat(cfg.lang,{month:"long",timeZone:"UTC"});
+  const body = months.reverse().map(([y,m],idx)=>{
+    const dim = new Date(Date.UTC(y,m,0,12)).getUTCDate(), off = (new Date(Date.UTC(y,m-1,1,12)).getUTCDay()+6)%7, rows = Math.ceil((off+dim)/7);
+    let ses=0, mins=0, full=0, wk=`<div class="week">${DAYS[cfg.lang].split("").map(n=>`<div class="dot">${n}</div>`).join("")}</div>`;
+    for(let r=0;r<rows;r++){
+      let cells="", first=0, last=0;
+      for(let c=0;c<7;c++){
+        const d = r*7+c-off+1;
+        if(d<1||d>dim){ cells+='<div class="dot"></div>'; continue; }
+        if(!first) first=d; last=d;
+        const k = `${y}-${pad(m)}-${pad(d)}`, o = by[k];
+        if(o){ ses+=o.n; mins+=o.mins; if(o.types.size>=Object.keys(TN).length) full++; }
+        const mb = (bd[k]||[]).map(b=>`<span class="mb">${cardMini(b)}</span>`).join("");
+        cells += `<div class="dot ${k===todayK?"today":""}">${mb?`<span class="mbs">${mb}</span>`:""}<div class="rg" role="img" aria-label="${dayLabel(d,o&&o.types)}">${miniRing(o&&o.types)}<span>${d}</span></div></div>`;
+      }
+      wk += `<div class="week">${cells}</div>`;
+    }
+    const label = (y===ty?mf1:mf).format(new Date(Date.UTC(y,m-1,1,12))), key = y+"-"+m, open = key in hOpen ? hOpen[key] : idx===0;
+    return `<details class="mon" ${open?"open":""} ontoggle="hOpen['${key}']=this.open"><summary>${label.charAt(0).toUpperCase()+label.slice(1)}</summary>
+    <p class="msum">${ses} ${t("nsess")} · ${fmtTime(mins)} · ${t("fdays")}: ${full}</p>${wk}</details>`;
+  }).join("");
+  return head+`<div class="legend" style="margin:10px 0 6px"><span style="--c:var(--mob)">${tn("mobility")}</span><span style="--c:var(--car)">${tn("cardio")}</span><span style="--c:var(--str)">${tn("strength")}</span></div>`+body+`</details>`;
+}
+function stats(){ return replay(log).x; }
+/* Card pictures: full card (collection), mini card (history calendar) */
+function cardSvg(c,on){
+  if(!on) return `<svg viewBox="0 0 120 160" aria-hidden="true"><rect width="120" height="160" rx="16" fill="#8C9BA1"/><rect x="7" y="7" width="106" height="146" rx="11" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-dasharray="6 6"/><text x="60" y="96" text-anchor="middle" font-size="52" font-weight="700" fill="#fff" fill-opacity=".85" font-family="inherit">?</text></svg>`;
+  return `<svg viewBox="0 0 120 160" aria-hidden="true"><rect width="120" height="160" rx="16" fill="${c.c}"/><path d="M0 16A16 16 0 0116 0h70L0 110z" fill="#fff" fill-opacity=".16"/><rect x="7" y="7" width="106" height="146" rx="11" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>
+  <circle cx="60" cy="70" r="34" fill="#fff" fill-opacity=".2"/><g transform="translate(36 46) scale(2)" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${c.g}"/></g>
+  <rect x="26" y="122" width="68" height="7" rx="3.5" fill="#fff" fill-opacity=".4"/><rect x="38" y="134" width="44" height="6" rx="3" fill="#fff" fill-opacity=".28"/></svg>`;
+}
+const cardMini = c => `<svg viewBox="0 0 12 16" aria-hidden="true"><rect x=".5" y=".5" width="11" height="15" rx="2.5" fill="${c.c}" stroke="#fff"/><circle cx="6" cy="7" r="2.6" fill="#fff" fill-opacity=".7"/></svg>`;
+function achCard(){
+  const r = replay(log), st = r.x, n = CARDS.filter(c=>r.on[c.id]).length;
+  return `<details class="card ach" ${achOpen?"open":""} ontoggle="achOpen=this.open"><summary><b>${t("ach")}</b><span class="mute">${n}/${CARDS.length}</span></summary>
+  <div class="astats"><div class="stat"><b>${st.best}</b><span class="mute">${t("bestS")}</span></div><div class="stat"><b>${st.full}</b><span class="mute">${t("fullD")}</span></div></div>
+  <h3>${t("cardsT")}</h3><div class="cgrid" id="bgrid">${CARDS.map(c=>{ const on=!!r.on[c.id];
+    return `<button class="cardbtn" onclick="showCardInfo('${c.id}',this)" aria-label="${L(c.n)} (${t(on?"unl":"lck")})">${cardSvg(c,on)}</button>`; }).join("")}<div id="bub" hidden></div></div></details>`;
+}
+function showCardInfo(id, btn){
+  const bub = $("#bub"), on = !!replay(log).on[id], c = CARDS.find(x=>x.id===id);
+  if(openCard===id && !bub.hidden){ bub.hidden=true; return; }
+  openCard = id;
+  bub.innerHTML = `<b>${L(c.n)}</b><br>${L(c.d)}<br><span style="opacity:.75">${t(on?"unl":"lck")}</span>`;
+  bub.hidden = false;
+  const r = btn.getBoundingClientRect(), w = $("#bgrid").getBoundingClientRect(), cx = r.left-w.left+r.width/2;
+  const left = Math.max(0, Math.min(cx-110, w.width-220));
+  bub.style.left = left+"px"; bub.style.top = (r.bottom-w.top+8)+"px"; bub.style.setProperty("--ax", (cx-left)+"px");
+}
+document.addEventListener("click", e => { const b=$("#bub"); if(b && !e.target.closest(".cardbtn") && !e.target.closest("#bub")) b.hidden=true; });
+function todayCard(s){
+  return `<div class="card"><span class="tag ${s.type}">${tn(s.type)}</span>
+  <div class="row" style="margin-top:8px"><h2 class="grow" style="margin:0">${L(s.name)}</h2>${durHTML(s)}</div>
+  <p class="mute" style="margin:4px 0 12px">${L(s.desc)}</p>
+  <button class="primary" onclick="goSession('${s.id}')">${t("goto")}</button></div>`;
+}
+function goSession(id){
+  tab="sessions"; render();
+  const el = $("#s-"+id); if(!el) return;
+  el.scrollIntoView({block:"center"}); el.classList.add("hl");
+  setTimeout(()=>el.classList.remove("hl"),3000);
+}
+function head(){
+  return `<div class="top"><b>Minute Fit</b><button class="burger" onclick="openMenu()" aria-label="${t("menu")}"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h18M4 13h18M4 19h18"/></svg></button></div>`;
+}
+/* ---- First launch: name + language, then the introduction page ---- */
+let obF = "", obL = "";
+const esc = v => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const obOk = () => obF.trim() && obL.trim();
+function onboard(){
+  $("#tabs").hidden = true;
+  const lg = LANGS.map(l=>`<button aria-pressed="${l===cfg.lang}" onclick="obLang('${l}')">${LN[l]}</button>`).join("");
+  $("#app").innerHTML = `<h1 style="margin-top:24px">${t("welcome")}</h1><p class="mute">${t("welcomeSub")}</p>
+  <label class="fld"><span>${t("firstN")}</span><input id="obF" value="${esc(obF)}" autocomplete="given-name" autocapitalize="words" oninput="obF=this.value;obBtn()"></label>
+  <label class="fld"><span>${t("lastN")}</span><input id="obL" value="${esc(obL)}" autocomplete="family-name" autocapitalize="words" oninput="obL=this.value;obBtn()"></label>
+  <p class="note">${t("nameNote")}</p>
+  <h2>${t("lang")}</h2><div class="opts">${lg}</div>
+  <button class="primary" id="obGo" style="margin-top:24px" ${obOk()?"":"disabled"} onclick="obDone()">${t("confirm")}</button>`;
+}
+function obBtn(){ $("#obGo").disabled = !obOk(); }
+function obLang(l){ cfg.lang=l; wr("fb-cfg",cfg); apply(); onboard(); }
+function obDone(){ if(!obOk()) return; cfg.first=obF.trim(); cfg.last=obL.trim(); wr("fb-cfg",cfg); tab="today"; render(); window.scrollTo(0,0); }
+/* Introduction pop-up: shown over the app (blurred behind) until "Get started" is pressed */
+function showIntro(){
+  $("#intro").innerHTML = `<div class="ibox"><svg class="ilogo" width="72" height="72" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="110" fill="#16303D"/><rect x="230" y="80" width="56" height="28" fill="#F0B429"/><circle cx="256" cy="267" r="138" fill="none" stroke="#F0B429" stroke-width="32"/><rect x="241" y="175" width="30" height="95" fill="#F0B429"/><path d="M272 278l55 30" stroke="#E8F2F0" stroke-width="22"/><circle cx="256" cy="272" r="24" fill="#F0B429"/></svg>
+  <h2>${esc(t("dear").replace("{x}", cfg.first))}</h2><p>${t("intro")}</p>
+  <button class="primary" onclick="obStart()">${t("getStarted")}</button></div>`;
+  $("#intro").hidden = false;
+}
+function obStart(){ cfg.started=true; wr("fb-cfg",cfg); $("#intro").hidden = true; $("#intro").innerHTML = ""; }
+function pageHTML(tab, anim){
+  let h = head();
+  if(tab==="today"){
+    const todayK = day(new Date()), doneTypes = new Set(log.filter(l=>l.date===todayK).map(l=>(SESSIONS.find(x=>x.id===l.session)||{}).type));
+    const next = Object.keys(TN).filter(ty=>!doneTypes.has(ty)).map(ty=>SESSIONS.find(x=>x.type===ty)).filter(Boolean);
+    h += `<h1>${title(doneTypes)}</h1><p class="mute">${t(sty()==="original"?"sub":"sub_"+sty())}</p>
+    ${heroHTML(doneTypes, anim)}
+    <h2>${t("next")}</h2>${next.length?next.map(todayCard).join(""):`<div class="card donecard">${t("alldone")}<button class="shareic" onclick="shareImage('day')" aria-label="${t("shareBtn")}">${SHARE_IC}</button></div>`}`;
+  } else if(tab==="sessions"){
+    h += `<h1>${t("tSess")}</h1><p class="mute">${t("choose")}</p>` + SESSIONS.map(sessionBtn).join("") +
+    focusHTML();
+  } else {
+    const total = log.reduce((a,l)=>a+l.mins,0);
+    h += `<h1>${t("yprog")}</h1><div class="card stats">
+    <div class="stat"><b>${log.length}</b><span class="mute">${t("nsess")}</span></div>
+    <div class="stat"><b>${fmtTime(total)}</b><span class="mute">${t("totalT")}</span></div>
+    <div class="stat"><b>${streak()}</b><span class="mute">${t("strk")}</span></div></div>
+    <div class="card"><b>${t("week")}</b>${weekDots()}</div>
+    ${log.length?"":`<p class="mute">${t("first")}</p>`}
+    ${collectionCard()}
+    ${achCard()}
+    ${historyCard()}
+    <!-- KEEP THIS BLOCK LAST: add new Progress content above it -->
+    <div class="danger-zone"><button class="danger" onclick="askDelete()">${t("del")}</button></div>`;
+  }
+  return h;
+}
+function render(){
+  if(!cfg.first){ onboard(); return; }
+  $("#tabs").hidden = false;
+  $("#app").innerHTML = pageHTML(tab, celebrate);
+  $("#tabs").innerHTML = [["today","tToday"],["sessions","tSess"],["progress","tProg"]]
+    .map(([k,n])=>`<button onclick="go('${k}')" ${k===tab?'aria-current="true"':""}>${t(n)}</button>`).join("");
+  if(!cfg.started) showIntro();
+  if(celebrate){ const c = celebrate; celebrate = null; if(tab==="today") runCelebration(c); }
+}
+const TABS = ["today","sessions","progress"];
+function go(k){
+  const d = Math.sign(TABS.indexOf(k)-TABS.indexOf(tab)); tab=k; render(); window.scrollTo(0,0);
+  if(d && !matchMedia("(prefers-reduced-motion:reduce)").matches)
+    $("#app").animate([{transform:`translateX(${d*28}px)`,opacity:0},{transform:"none",opacity:1}],{duration:200,easing:"ease-out"});
+}
+/* Swipe: the page follows your finger, with the neighbouring page alongside */
+let D = null;
+const okToSwipe = () => cfg.started && $("#menu").hidden && $("#player").hidden && $("#dlg").hidden && $("#sheet").hidden && $("#reward").hidden;
+document.addEventListener("touchstart", e => {
+  const p = e.touches[0];
+  D = (e.touches.length===1 && okToSwipe() && e.target.closest("#app") && p.clientX>24 && p.clientX<innerWidth-24)
+    ? {x:p.clientX, y:p.clientY, t:Date.now(), lock:null, side:0, nb:null, dx:0} : null;
+}, {passive:true});
+function setNb(side){
+  const app = $("#app"); if(D.nb){ D.nb.remove(); D.nb = null; } D.side = side;
+  const i = TABS.indexOf(tab)+side; if(i<0 || i>=TABS.length) return;
+  const el = document.createElement("div"); el.id = "nb"; el.innerHTML = pageHTML(TABS[i]);
+  el.style.cssText = `left:${side*100}%;top:${Math.max(0,-app.getBoundingClientRect().top)}px`;
+  app.appendChild(el); D.nb = el;
+}
+document.addEventListener("touchmove", e => {
+  if(!D) return; const p = e.touches[0], dx = p.clientX-D.x, dy = p.clientY-D.y;
+  if(!D.lock){ if(Math.abs(dx)<8 && Math.abs(dy)<8) return; D.lock = Math.abs(dx)>Math.abs(dy)*1.2 ? "h" : "v"; }
+  if(D.lock!=="h") return;
+  if(e.cancelable) e.preventDefault();
+  const side = dx<0 ? 1 : -1; if(side!==D.side) setNb(side);
+  D.dx = dx; const app = $("#app"); app.style.transition = "none"; app.style.transform = `translateX(${D.nb?dx:dx*0.3}px)`;
+}, {passive:false});
+document.addEventListener("touchend", () => {
+  if(!D || D.lock!=="h"){ D = null; return; }
+  const app = $("#app"), w = app.offsetWidth, dx = D.dx, side = D.side, nb = D.nb;
+  const fast = Math.abs(dx)/(Date.now()-D.t) > 0.5 && Math.abs(dx) > 40, commit = nb && (Math.abs(dx) > w*0.3 || fast); D = null;
+  const ms = matchMedia("(prefers-reduced-motion:reduce)").matches ? 0 : 180;
+  app.style.transition = `transform ${ms}ms ease-out`; app.style.transform = `translateX(${commit?-side*w:0}px)`;
+  setTimeout(() => {
+    app.style.transition = "none"; app.style.transform = ""; if(nb) nb.remove();
+    if(commit){ tab = TABS[TABS.indexOf(tab)+side]; render(); window.scrollTo(0,0); }
+  }, ms+20);
+}, {passive:true});
+document.addEventListener("touchcancel", () => { if(D && D.lock==="h"){ const app=$("#app"); app.style.transform=""; if(D.nb) D.nb.remove(); } D = null; });
+function askDelete(){
+  $("#dlg").innerHTML = `<div class="box"><h2>${t("delTitle")}</h2><p>${t("delMsg")}</p>
+  <div class="row"><button class="ghost" id="dno" onclick="closeDlg()">${t("cancel")}</button><button class="danger-fill" onclick="confirmDelete()">${t("delYes")}</button></div></div>`;
+  $("#dlg").hidden = false; $("#dno").focus();
+}
+function closeDlg(){ $("#dlg").hidden = true; }
+function confirmDelete(){
+  try{ localStorage.removeItem("fb-log"); localStorage.removeItem("fb-cfg"); }catch(e){}
+  if(cfg.remind) os(O => O.User.PushSubscription.optOut());
+  log = []; obF = ""; obL = "";
+  cfg = {lang:LANGS.includes(nav)?nav:"en", theme:"auto", size:1, first:"", last:"", started:false, remind:false, style:"original"};
+  apply(); closeDlg(); tab = "today"; render(); window.scrollTo(0,0);
+}
+document.addEventListener("keydown", e => { if(e.key==="Escape"){ closeStory(); closeDlg(); closeMenu(); closeSheet(); closeVid(); } });
+
+/* ---- Daily reminder (OneSignal) ----
+   The reminder itself is sent each evening by the GitHub job (.github/workflows/reminder.yml).
+   The app shares two things with OneSignal: "done" = the date of your last session (people who already exercised today are skipped)
+   and "style" = original / garden / night, so each style gets its own reminder text. */
+const OS_APP_ID = "2d4634c6-23ef-424a-b12c-57077d64cb93";
+const OS_BASE = location.pathname.replace(/[^/]*$/, "");
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+const os = fn => OneSignalDeferred.push(async O => { try{ await fn(O); }catch(e){} });
+let remindMsg = "";
+if(location.protocol==="https:"){
+  const sc = document.createElement("script"); sc.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"; sc.defer = true; document.head.appendChild(sc);
+  os(async O => {
+    await O.init({appId:OS_APP_ID, serviceWorkerPath:OS_BASE.slice(1)+"OneSignalSDKWorker.js", serviceWorkerParam:{scope:OS_BASE}});
+    if(cfg.remind){ O.User.setLanguage(cfg.lang); O.User.addTag("style", sty()); if(!O.Notifications.permission){ cfg.remind=false; wr("fb-cfg",cfg); } }
+  });
+}
+const lastDone = () => log.length ? log[log.length-1].date : "never";
+const pushSupported = () => "Notification" in window && "serviceWorker" in navigator && location.protocol==="https:";
+function setRemind(v){
+  remindMsg = "";
+  if(v==="on"){
+    if(!pushSupported()){ remindMsg = t("remindHome"); openMenu(); return; }
+    os(async O => {
+      await O.Notifications.requestPermission();
+      if(!O.Notifications.permission){ remindMsg = t("remindBlocked"); openMenu(); return; }
+      await O.User.PushSubscription.optIn();
+      O.User.setLanguage(cfg.lang); O.User.addTags({done:lastDone(), style:sty()});
+      cfg.remind = true; wr("fb-cfg",cfg); openMenu();
+    });
+  } else {
+    os(O => O.User.PushSubscription.optOut());
+    cfg.remind = false; wr("fb-cfg",cfg); openMenu();
+  }
+}
+
+/* ---- Menu ---- */
+function openMenu(){
+  const grp = (title, items, cur, fn, col) => `<section class="mgrp"><h3>${title}</h3><div class="opts${col?" col":""}">` +
+    items.map(([v,n])=>{ const on=String(v)===String(cur); return `<button aria-pressed="${on}" onclick="${fn}(${typeof v==="number"?v:`'${v}'`})"><span>${n}</span></button>`; }).join("") + `</div></section>`;
+  $("#menu").innerHTML = `<div class="sheet"><div class="top"><b>${t("menu")}</b><button class="burger" onclick="closeMenu()" aria-label="${t("close")}"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 4l14 14M18 4L4 18"/></svg></button></div>` +
+    grp(t("lang"), LANGS.map(l=>[l,LN[l]]), cfg.lang, "setLang") +
+    grp(t("remind"), [["on",t("on")],["off",t("off")]], cfg.remind?"on":"off", "setRemind").replace("</section>", `<p class="note" style="margin:10px 0 0">${remindMsg||t("remindNote")}</p></section>`) +
+    grp(t("snd"), [["on",t("on")],["off",t("off")]], cfg.sound===false?"off":"on", "setSound") +
+    grp(t("styleT"), STYLES.map(v=>[v,t("st_"+v)]), sty(), "setStyle") +
+    (sty()!=="original" ? "" : grp(t("look"), [["auto",t("auto")],["light",t("light")],["dark",t("dark")]], cfg.theme, "setTheme")) +
+    grp(t("size"), [[1,t("normal")],[1.2,t("large")]], cfg.size, "setSize") + `</div>`;
+  $("#menu").hidden = false;
+}
+function closeMenu(){ $("#menu").hidden = true; }
+const setStyle = v => { if(cfg.remind) os(O => O.User.addTag("style", v)); set("style", v); };
+const setSound = v => { set("sound", v==="on"); if(v==="on") sfxDone(); };
+const setLang = v => { if(cfg.remind) os(O => O.User.setLanguage(v)); set("lang",v); }, setTheme = v => set("theme",v), setSize = v => set("size",v);
+$("#vid").addEventListener("click", e => { if(e.target.id==="vid") closeVid(); });
+$("#menu").addEventListener("click", e => { if(e.target.id==="menu") closeMenu(); });
+
+/* ---- Level picker and program preview ---- */
+const LVS = ["beginner","intermediate","expert"];
+const XI = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 4l14 14M18 4L4 18"/></svg>';
+function openSheet(id){
+  const s = SESSIONS.find(x=>x.id===id);
+  $("#sheet").innerHTML = `<div><div class="top"><span class="tag ${s.type}">${tn(s.type)}</span><button class="burger" onclick="closeSheet()" aria-label="${t("close")}">${XI}</button></div>
+  <h1>${L(s.name)}</h1><p class="mute">${L(s.desc)}</p><h2>${t("lvlQ")}</h2>` +
+  LVS.map(lv=>`<button class="session" onclick="pickLevel('${id}','${lv}')"><div class="row"><div class="grow"><h2 style="margin:0 0 2px">${t("lv_"+lv)}</h2><span class="mute">${t("ld_"+lv)}</span></div><b>${mins(s,lv)} min</b></div></button>`).join("") + `</div>`;
+  $("#sheet").hidden = false; $("#sheet").scrollTop = 0;
+}
+function pickLevel(id, lv){
+  const s = SESSIONS.find(x=>x.id===id);
+  $("#sheet").innerHTML = `<div><div class="top"><button class="ghost" onclick="openSheet('${id}')">‹ ${t("back")}</button><button class="burger" onclick="closeSheet()" aria-label="${t("close")}">${XI}</button></div>
+  <p style="margin-top:16px"><span class="tag ${s.type}">${tn(s.type)}</span> <span class="tag" style="background:var(--ink);color:var(--bg)">${t("lv_"+lv)}</span></p>
+  <h1>${L(s.name)}</h1><p class="mute">${L(s.desc)}</p><p style="font-size:calc(24px*var(--s,1));font-weight:700;margin:18px 0">${mins(s,lv)} min</p>` +
+  `<button class="primary" onclick="start('${id}','${lv}')">${t("start")}</button></div>`;
+  $("#sheet").scrollTop = 0;
+}
+function closeSheet(){ $("#sheet").hidden = true; }
+
+/* ---- Session player ---- */
+function start(id, lv){
+  audio(); /* the tap on "Start session" lets the phone play sounds later */
+  closeSheet(); lv = lv||"beginner";
+  const s = SESSIONS.find(x=>x.id===id), steps = s.levels[lv], total = steps.filter(e=>!e.gate).length;
+  let i=0, phase="work", left=0, dur=1, paused=false;
+  $("#player").hidden=false; $("#tabs").hidden=true;
+  const num = k => steps.slice(0,k+1).filter(e=>!e.gate).length;
+  const endBtn = `<p style="margin-top:14px"><button class="ghost" style="width:100%" id="qt">${t("end")}</button></p>`;
+  function show(){
+    const e = steps[i]; paused = false;
+    const nxt = steps.slice(i+1).find(x=>!x.gate);
+    if(e.gate && phase!=="ready"){
+      phase = "gate";
+      $("#player").innerHTML = `<div><h1 style="margin-top:40px">${L(e.title)}</h1><p class="mute">${L(e.sub)}</p>${nxt?`<p class="mute">${t("nextUp")} <b style="color:var(--ink)">${L(nxt.name)}</b></p>`:""}<button class="primary" id="nx">${t("nextB")}</button>${endBtn}</div>`;
+      $("#nx").onclick = () => countdown(nxt, () => { i++; phase = "work"; planned = true; show(); }); $("#qt").onclick = () => finish(false); return;
+    }
+    /* "ready" = 5-second countdown after the stop, so people can get into position */
+    const rest = phase==="rest", ready = phase==="ready", cur = ready ? nxt : e;
+    dur = left = ready ? 5 : rest ? e.rest : e.secs;
+    const body = ready
+      ? `<h1>${t("getReady")}</h1><p style="font-size:calc(24px*var(--s,1));font-weight:700">${L(nxt.name)}</p>`
+      : rest
+      ? `<h1>${t("rest")}</h1>${e.restMsg?`<p style="font-size:calc(24px*var(--s,1));font-weight:700">${L(e.restMsg)}</p>`:""}${nxt?`<p class="mute">${t("nextUp")} ${L(nxt.name)}</p>`:""}`
+      : `<h1>${L(e.name)}</h1><div class="video">${media(e)}</div>${L(e.cue)?`<p>${L(e.cue)}</p>`:""}`;
+    $("#player").innerHTML = `<div><div class="row"><span class="tag ${cur.type}">${tn(cur.type)}</span><span class="grow"></span><span class="mute">${num(i)+(ready?1:0)} ${t("of")} ${total}</span></div>
+      ${body}<div class="timer" id="t"></div><div class="bar"><i id="b"></i></div>
+      <div class="row"><button class="ghost grow" id="pp">${t("pause")}</button><button class="ghost grow" id="nx">${t("skip")}</button></div>${endBtn}</div>`;
+    $("#pp").onclick = () => { paused=!paused; const v = $("#player video"); if(paused){ cancelSounds(); planned = false; if(v) v.pause(); } else if(v) v.play().catch(()=>{}); $("#pp").textContent=t(paused?"resume":"pause"); };
+    $("#nx").onclick = skip; $("#qt").onclick = () => finish(false);
+    tick();
+    if(!ready && !planned) (rest ? sfxRest : sfxGo)();
+    planned = false;
+  }
+  function tick(){
+    $("#t").textContent = `${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}`;
+    $("#b").style.width = (100*(dur-left)/dur)+"%";
+  }
+  function skip(){ cancelSounds(); planned = false; advance(); }
+  function advance(){
+    const e = steps[i];
+    if(phase==="work" && e.rest>0){ phase="rest"; show(); return; }
+    i++; phase = "work";
+    if(i>=steps.length) finish(true); else show();
+  }
+  function finish(ok){
+    clearInterval(timer); cancelSounds();
+    if(ok){
+      const k = day(new Date()), had = log.some(l=>l.date===k && (SESSIONS.find(x=>x.id===l.session)||{}).type===s.type);
+      const before = replay(log).on;
+      const h = Number(new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Paris",hour:"2-digit",hourCycle:"h23"}).format(new Date()));
+      log.push({date:k, session:s.id, level:lv, mins:mins(s,lv), h}); wr("fb-log",log);
+      const after = replay(log).on, cards = CARDS.filter(c=>after[c.id] && !before[c.id]);
+      if(cfg.remind) os(O => O.User.addTag("done", k));
+      celebrate = {type:s.type, fresh:!had, cards};
+    }
+    close();
+  }
+  function close(){ $("#player").hidden=true; $("#player").innerHTML=""; $("#tabs").hidden=false; tab="today"; render(); window.scrollTo(0,0); }
+  clearInterval(timer);
+  /* Countdown: when 3 seconds are left, the ticks and the next sound are all planned at once, 1 second apart */
+  let planned = false;
+  function planCountdown(){
+    if(planned) return; planned = true;
+    const e = steps[i], nextStep = steps[i+1];
+    const next = phase==="work" ? (e.rest>0 ? "rest" : (nextStep && !nextStep.gate ? "go" : "")) : "go";
+    for(let k=0;k<left;k++) sfxTick(k);
+    if(next==="go") sfxGo(left); else if(next==="rest") sfxRest(left); else planned = false;
+  }
+  timer = setInterval(()=>{ if(paused || phase==="gate" || phase==="intro") return; left--; if(left<=0) advance(); else { tick();
+    if(left>=1 && left<=3){ planCountdown(); const el = $("#t"); if(el){ el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); } } } },1000);
+  /* Before the session: big 3, 2, 1 with lights, then a green GO (sounds planned on the audio clock so they stay even) */
+  let cdTimers = [];
+  function countdown(upcoming, then){
+    phase = "intro";
+    const draw = k => { const go = k===0;
+      $("#player").innerHTML = `<div><div class="cd"><p class="cdnext"><span class="mute">${t("nextUp")}</span><b>${L(upcoming.name)}</b></p><div class="lights${go?" g":""}">${[3,2,1].map(n=>`<i class="${!go&&n>=k?"on":""}"></i>`).join("")}</div>
+        <div class="n${go?" go":""}">${go?t("goT"):k}</div></div>${endBtn}</div>`;
+      $("#qt").onclick = () => { cdTimers.forEach(clearTimeout); cancelSounds(); clearInterval(timer); close(); }; };
+    draw(3); sfxTick(0); sfxTick(1); sfxTick(2); sfxGo(3);
+    cdTimers = [setTimeout(()=>draw(2),1000), setTimeout(()=>draw(1),2000), setTimeout(()=>draw(0),3000),
+      setTimeout(then, 3800)];
+  }
+  countdown(steps.find(x=>!x.gate), () => { phase = "work"; planned = true; show(); });
+}
+apply(); render(); checkRecap();
+</script>
+</body>
+</html>
